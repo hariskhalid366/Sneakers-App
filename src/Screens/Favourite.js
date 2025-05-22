@@ -1,9 +1,9 @@
-import {View} from 'react-native';
+import {View, TouchableOpacity} from 'react-native';
 import React from 'react';
 import {HeaderComp, ShoesCard} from '../Components';
 import {ChevronLeftIcon, TrashIcon} from 'react-native-heroicons/outline';
 import {theme} from '../constants/theme';
-import {FlatList, TouchableOpacity} from 'react-native-gesture-handler';
+import {FlatList} from 'react-native-gesture-handler';
 import {useFavorites} from '../AsyncStorage/FavStorage';
 import LottieView from 'lottie-react-native';
 

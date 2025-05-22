@@ -1,26 +1,26 @@
-// const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
-// const {
-//   wrapWithReanimatedMetroConfig,
-// } = require('react-native-reanimated/metro-config');
-
-// /**
-//  * Metro configuration
-//  * https://reactnative.dev/docs/metro
-//  *
-//  * @type {import('@react-native/metro-config').MetroConfig}
-//  */
-// const config = {};
-
-// module.exports = wrapWithReanimatedMetroConfig(
-//   getDefaultConfig(__dirname),
-//   config,
-// );
-
 const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
 const {withNativeWind} = require('nativewind/metro');
 
-const config = mergeConfig(getDefaultConfig(__dirname), {
-  /* your config */
-});
+// Retrieve the default Metro configuration
+const defaultConfig = getDefaultConfig(__dirname);
+const {assetExts, sourceExts} = defaultConfig.resolver;
 
-module.exports = withNativeWind(config, {input: './global.css'});
+// Define custom configurations
+const customConfig = {
+  transformer: {
+    babelTransformerPath: require.resolve('react-native-svg-transformer'),
+  },
+
+  resolver: {
+    assetExts: assetExts.filter(ext => ext !== 'svg'),
+    sourceExts: [...sourceExts, 'svg'],
+    unstable_enablePackageExports: true,
+    unstable_conditionNames: ['react-native', 'browser', 'require'],
+  },
+};
+
+// Merge default and custom configurations
+const mergedConfig = mergeConfig(defaultConfig, customConfig);
+
+// Export the final configuration with NativeWind integration
+module.exports = withNativeWind(mergedConfig, {input: './global.css'});

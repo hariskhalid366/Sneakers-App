@@ -1,3 +1,5 @@
+import {ConnectButton} from 'thirdweb/react';
+import {createWallet} from 'thirdweb/wallets';
 import {Image, StyleSheet, View, TouchableOpacity, Text} from 'react-native';
 import React from 'react';
 import {
@@ -5,22 +7,22 @@ import {
   DrawerItemList,
 } from '@react-navigation/drawer';
 import {hp, wp} from '..//constants/Dimensions';
-import {ChevronLeftIcon} from 'react-native-heroicons/outline';
-import {DrawerActions, useNavigation} from '@react-navigation/native';
-import {theme} from '../constants/theme';
-import {AppKitButton} from '@reown/appkit-wagmi-react-native';
-// import {DbContext, UserSchema} from '../../databases';
+import {useNavigation} from '@react-navigation/native';
+import {client} from '../contexts/thirdweb';
+import {baseSepolia} from 'thirdweb/chains';
 
 const CustomDrawer = props => {
-  // const {useObject} = DbContext;
-  // const dbUser = useObject(UserSchema, 1);
-  const navigation = useNavigation();
+  const wallets = [
+    createWallet('io.metamask'),
+    createWallet('com.coinbase.wallet'),
+    createWallet('me.rainbow'),
+    createWallet('io.rabby'),
+    createWallet('io.zerion.wallet'),
+  ];
+
   return (
     <DrawerContentScrollView
-      contentContainerStyle={[
-        styles.container,
-        // {height: dbUser?.role === 'user' ? hp(90.5) : hp(100)},
-      ]}
+      contentContainerStyle={styles.container}
       showsVerticalScrollIndicator={false}
       {...props}>
       <View style={[styles.headerContent]}>
@@ -35,7 +37,13 @@ const CustomDrawer = props => {
           <Text style={styles.userEmail}>hariskhalid366@gmail.com</Text>
         </View>
       </View>
-      <AppKitButton />
+      {/* <AppKitButton /> */}
+      <ConnectButton
+        client={client}
+        wallets={wallets}
+        chain={baseSepolia}
+        connectModal={{size: 'compact'}}
+      />
       <View style={styles.divider} />
       <DrawerItemList {...props} />
     </DrawerContentScrollView>

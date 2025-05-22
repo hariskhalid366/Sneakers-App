@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {gestureHandlerRootHOC} from 'react-native-gesture-handler';
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
@@ -11,11 +11,11 @@ import './global.css';
 import {NotificationProvider} from './src/AsyncStorage/Notification';
 import {PaperProvider} from 'react-native-paper';
 import {ThemeProvider} from './src/contexts/ThemeContext';
-import WalletConnect from './src/WalletClient/WalletConnect';
+import {ThirdwebProvider} from 'thirdweb/react-native';
 
 const App = gestureHandlerRootHOC(() => {
   return (
-    <WalletConnect>
+    <ThirdwebProvider>
       <ThemeProvider>
         <SafeAreaProvider style={{backgroundColor: '#fff'}}>
           <Provider store={store}>
@@ -33,7 +33,7 @@ const App = gestureHandlerRootHOC(() => {
           </Provider>
         </SafeAreaProvider>
       </ThemeProvider>
-    </WalletConnect>
+    </ThirdwebProvider>
   );
 });
 

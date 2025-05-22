@@ -4,7 +4,7 @@ import {createDrawerNavigator} from '@react-navigation/drawer';
 // import * as Outline from 'react-native-heroicons/outline';
 import BottomNavigation from './BottomNavigation';
 import CustomDrawer from '../Components/CustomDrawer';
-import {wp} from '../constants/Dimensions';
+import {hp, wp} from '../constants/Dimensions';
 import {Favourite, Notification, OrderedProduct} from '../Screens';
 import Settings from '../Screens/Settings';
 import TasKCentre from '../Screens/TasKCentre';
@@ -25,7 +25,7 @@ const Drawer = () => {
     switch (route.name) {
       case 'Task Center':
         return RectangleStackIcon;
-      case 'Custom Sneakers':
+      case 'CreateDesign':
         return PaintBrushIcon;
       case 'Favourite':
         return HeartIcon;
@@ -46,9 +46,17 @@ const Drawer = () => {
       drawerContent={props => <CustomDrawer {...props} />}
       screenOptions={({route}) => ({
         initialRouteName: 'BottomTabs',
-        drawerType: 'slide',
+        drawerType: 'front',
         headerShown: false,
-        drawerStyle: {backgroundColor: '#fff', width: wp(65)},
+        drawerStyle: {
+          backgroundColor: '#fff',
+          height: hp(90),
+          top: hp(2.5),
+          left: wp(5),
+          width: wp(65),
+          borderRadius: 20,
+          overflow: 'hidden',
+        },
         drawerItemStyle: {
           marginVertical: 5,
           borderRadius: 15,
@@ -72,7 +80,11 @@ const Drawer = () => {
         component={BottomNavigation}
       />
       <_Drawer.Screen name="Task Center" component={TasKCentre} />
-      <_Drawer.Screen name="Custom Sneakers" component={CreateDesign} />
+      <_Drawer.Screen
+        name="CreateDesign"
+        component={CreateDesign}
+        options={{title: 'Creator Center'}}
+      />
       <_Drawer.Screen name="Favourite" component={Favourite} />
       <_Drawer.Screen name="Orders" component={OrderedProduct} />
       <_Drawer.Screen name="Notifications" component={Notification} />

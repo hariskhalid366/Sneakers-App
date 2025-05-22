@@ -1,6 +1,9 @@
 import {MMKV} from 'react-native-mmkv';
 
-export const storage = new MMKV();
+export const Storage = new MMKV({
+  id: 'com.sneakers',
+  encryptionKey: 'sneakers',
+});
 
 /**
  * Save or update a value
@@ -9,9 +12,9 @@ export const storage = new MMKV();
  */
 export const setItem = (key: string, value: any): void => {
   if (typeof value === 'object') {
-    storage.set(key, JSON.stringify(value));
+    Storage.set(key, JSON.stringify(value));
   } else {
-    storage.set(key, value);
+    Storage.set(key, value);
   }
 };
 
@@ -21,7 +24,7 @@ export const setItem = (key: string, value: any): void => {
  * @returns The parsed value or null
  */
 export const getItem = <T = any,>(key: string): T | null => {
-  const value = storage.getString(key);
+  const value = Storage.getString(key);
   try {
     return value ? JSON.parse(value) : null;
   } catch {
@@ -34,7 +37,7 @@ export const getItem = <T = any,>(key: string): T | null => {
  * @param key - The key to delete
  */
 export const removeItem = (key: string): void => {
-  storage.delete(key);
+  Storage.delete(key);
 };
 
 /**

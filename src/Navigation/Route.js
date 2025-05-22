@@ -113,11 +113,19 @@ const Route = () => {
               animation: 'slide_from_right',
               statusBarStyle: 'dark',
               orientation: 'portrait',
+              statusBarBackgroundColor: theme.backgroundColor,
               gestureDirection: 'horizontal',
             }}>
             {!state.userToken ? (
               <>
-                <Stack.Screen name="OnBoardScreen" component={OnBoardScreen} />
+                <Stack.Screen
+                  name="OnBoardScreen"
+                  component={OnBoardScreen}
+                  options={{
+                    statusBarTranslucent: true,
+                    statusBarBackgroundColor: theme.backdrop,
+                  }}
+                />
                 <Stack.Screen name="Login" component={LoginScreen} />
                 <Stack.Screen name="Register" component={RegisterScreen} />
                 <Stack.Screen name="OtpScreen" component={OtpScreen} />

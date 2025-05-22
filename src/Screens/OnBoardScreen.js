@@ -3,6 +3,7 @@ import React from 'react';
 import Onboarding from 'react-native-onboarding-swiper';
 import {theme} from '../constants/theme';
 import {useNavigation} from '@react-navigation/native';
+import {wp} from '../constants/Dimensions';
 
 const {width} = Dimensions.get('screen');
 const OnBoardScreen = () => {
@@ -17,13 +18,13 @@ const OnBoardScreen = () => {
       onSkip={handleDone}
       bottomBarColor={theme.backdrop}
       titleStyles={{
-        fontSize: 34,
+        fontSize: wp(7),
         letterSpacing: 1.16,
         textAlign: 'center',
         fontWeight: 'bold',
       }}
       subTitleStyles={{
-        fontSize: 16,
+        fontSize: wp(3.5),
         fontWeight: '400',
         paddingTop: 10,
       }}
@@ -106,7 +107,7 @@ const OnBoardScreen = () => {
                   width: width,
                   height: width * 0.5,
                   tintColor: '#fff',
-                  top: width * 0.85,
+                  top: width * 0.83,
                   position: 'absolute',
                 }}
               />

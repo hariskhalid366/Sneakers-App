@@ -1,0 +1,33 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "assets/fonts/FrankRuhlLibre Black.ttf",
+      "sha1": "3d1bbd575281d79b9f90c1c1186100cc75e72d26"
+    },
+    {
+      "path": "assets/fonts/FrankRuhlLibre Bold.ttf",
+      "sha1": "8e1b2bf02d5c38be097c134977e0a2707517606e"
+    },
+    {
+      "path": "assets/fonts/FrankRuhlLibre ExtraBold.ttf",
+      "sha1": "939013dcc9823871e43fcd1fb1eaf0d2a8626c99"
+    },
+    {
+      "path": "assets/fonts/FrankRuhlLibre Light.ttf",
+      "sha1": "939987798f6833d2b1ea6e1bc040fed3f97ed3d8"
+    },
+    {
+      "path": "assets/fonts/FrankRuhlLibre Medium.ttf",
+      "sha1": "a92250fd7105e130966867050a22412d475a1e1c"
+    },
+    {
+      "path": "assets/fonts/FrankRuhlLibre Regular.ttf",
+      "sha1": "649d7985fc202a0cd696c61890ee2d26c041a6f8"
+    },
+    {
+      "path": "assets/fonts/FrankRuhlLibre SemiBold.ttf",
+      "sha1": "ed0dbbd69cfae2e73ae8a5900a95ed0c5a94af23"
+    }
+  ]
+}

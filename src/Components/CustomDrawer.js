@@ -1,5 +1,3 @@
-import {ConnectButton} from 'thirdweb/react';
-import {createWallet} from 'thirdweb/wallets';
 import {Image, StyleSheet, View, TouchableOpacity, Text} from 'react-native';
 import React, {useContext} from 'react';
 import {
@@ -7,20 +5,12 @@ import {
   DrawerItemList,
 } from '@react-navigation/drawer';
 import {hp, wp} from '..//constants/Dimensions';
-import {client} from '../contexts/thirdweb';
-import {baseSepolia} from 'thirdweb/chains';
+
 import {ArrowLeftOnRectangleIcon} from 'react-native-heroicons/outline';
 import {AuthContext} from '../Navigation/Route';
 
 const CustomDrawer = props => {
   const {signOut} = useContext(AuthContext);
-  const wallets = [
-    createWallet('io.metamask'),
-    createWallet('com.coinbase.wallet'),
-    createWallet('me.rainbow'),
-    createWallet('io.rabby'),
-    createWallet('io.zerion.wallet'),
-  ];
 
   return (
     <DrawerContentScrollView
@@ -40,12 +30,7 @@ const CustomDrawer = props => {
         </View>
       </View>
       {/* <AppKitButton /> */}
-      <ConnectButton
-        client={client}
-        wallets={wallets}
-        chain={baseSepolia}
-        connectModal={{size: 'compact'}}
-      />
+
       <View style={styles.divider} />
       <DrawerItemList {...props} />
       <TouchableOpacity

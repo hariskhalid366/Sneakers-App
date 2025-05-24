@@ -17,6 +17,7 @@ import {
   RectangleStackIcon,
   HeartIcon,
 } from 'react-native-heroicons/outline';
+import WalletScreen from '../Screens/WalletScreen';
 
 const Drawer = () => {
   const _Drawer = createDrawerNavigator();

@@ -24,7 +24,7 @@ const InputField = ({
         {...containerStyles},
       ]}
       className="rounded-lg my-3 h-12">
-      <View className="flex-row w-full m-1 px-3 items-center justify-between">
+      <View className="flex-row w-full px-5 items-center justify-between">
         <View style={{...iconStyle}}>{prependChild}</View>
         <TextInput
           placeholder={placeholder}

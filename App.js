@@ -11,34 +11,31 @@ import './global.css';
 import {NotificationProvider} from './src/AsyncStorage/Notification';
 import {PaperProvider} from 'react-native-paper';
 import {ThemeProvider} from './src/contexts/ThemeContext';
-import {ThirdwebProvider} from 'thirdweb/react-native';
+
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
-import {GoogleSignin} from '@react-native-google-signin/google-signin';
 
 const App = gestureHandlerRootHOC(() => {
   const queryClient = new QueryClient();
   return (
-    <ThirdwebProvider>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <SafeAreaProvider style={{backgroundColor: '#fff'}}>
-            <Provider store={store}>
-              <BottomSheetModalProvider>
-                <PaperProvider>
-                  <NotificationProvider>
-                    <FavoritesProvider>
-                      <CartProvider>
-                        <Route />
-                      </CartProvider>
-                    </FavoritesProvider>
-                  </NotificationProvider>
-                </PaperProvider>
-              </BottomSheetModalProvider>
-            </Provider>
-          </SafeAreaProvider>
-        </ThemeProvider>
-      </QueryClientProvider>
-    </ThirdwebProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <SafeAreaProvider style={{backgroundColor: '#fff'}}>
+          <Provider store={store}>
+            <BottomSheetModalProvider>
+              <PaperProvider>
+                <NotificationProvider>
+                  <FavoritesProvider>
+                    <CartProvider>
+                      <Route />
+                    </CartProvider>
+                  </FavoritesProvider>
+                </NotificationProvider>
+              </PaperProvider>
+            </BottomSheetModalProvider>
+          </Provider>
+        </SafeAreaProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 });
 

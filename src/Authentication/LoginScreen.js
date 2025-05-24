@@ -147,7 +147,7 @@ const LoginScreen = ({navigation}) => {
           <TouchableOpacity
             onPress={() => navigation.push('Forget')}
             style={styles.forgotPassword}>
-            <Text style={styles.forgotText}>Recovery Password</Text>
+            <Text style={styles.forgotText}>Forget Password</Text>
           </TouchableOpacity>
 
           <LongButton

@@ -4,7 +4,7 @@ import BottomSheet, {BottomSheetBackdrop} from '@gorhom/bottom-sheet';
 import {EnvelopeOpenIcon} from 'react-native-heroicons/outline';
 import {theme} from '../../constants/theme';
 
-const RecoveryModal = ref => {
+const RecoveryModal = ({ref}) => {
   const points = React.useMemo(() => ['40%'], []);
   const renderBackdrop = React.useCallback(
     props => (
@@ -22,8 +22,6 @@ const RecoveryModal = ref => {
       ref={ref}
       snapPoints={points}
       backdropComponent={renderBackdrop}
-      // add bottom inset to elevate the sheet
-      // set `detached` to true
       style={styles.sheetContainer}></BottomSheet>
   );
 };

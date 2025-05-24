@@ -6,15 +6,15 @@ import {
   GoogleSignin,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
 
 const GoogleSignIn = () => {
   const navigation = useNavigation();
   React.useEffect(() => {
     GoogleSignin.configure({
+      offlineAccess: true, // if you want to access the user even when they are offline
       webClientId:
-        '503637809310-12lu4p2486vjrinas6dn5m91isnimlrc.apps.googleusercontent.com', // client ID of type WEB for your server (needed to verify user ID and offline access)
+        '852702708084-4rhpslo48q2376uon5b780j3le37a2r9.apps.googleusercontent.com',
     });
   }, []);
 

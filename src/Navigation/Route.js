@@ -21,12 +21,14 @@ import {
 import Drawer from './Drawer';
 import {theme} from '../constants/theme';
 import {getItem, removeItem, setItem} from '../constants/mmkv';
+import showToast from '../Components/Toast';
 
 const Stack = createNativeStackNavigator();
 export const AuthContext = React.createContext();
 
 const Route = () => {
   const navigationRef = useRef();
+
   const [state, dispatch] = useReducer(
     (prevState, action) => {
       switch (action.type) {
@@ -48,6 +50,8 @@ const Route = () => {
             isSignout: true,
             userToken: null,
           };
+        default:
+          return prevState;
       }
     },
     {
@@ -58,14 +62,12 @@ const Route = () => {
   );
 
   useEffect(() => {
-    const bootstrapAsync = async () => {
+    const bootstrapAsync = () => {
       try {
-        const userToken = getItem('authToken');
-        dispatch({type: 'RESTORE_TOKEN', token: userToken});
+        const token = getItem('token');
+        dispatch({type: 'RESTORE_TOKEN', token});
       } catch (e) {
-        console.error('Token restore error:', e);
-      } finally {
-        BootSplash.hide();
+        console.error('Failed to load token', e);
       }
     };
 
@@ -75,24 +77,29 @@ const Route = () => {
   const authContext = useMemo(
     () => ({
       signIn: async data => {
-        setItem('authToken', data?.token);
+        setItem('token', data?.token);
         dispatch({type: 'SIGN_IN', token: data?.token});
       },
       signOut: () => {
-        removeItem('authToken');
+        removeItem('token');
         dispatch({type: 'SIGN_OUT'});
+        showToast('Logged out successfully');
       },
     }),
     [],
   );
 
-  // context usage  const {signIn, signOut} = useContext(AuthContext);
+  // ⚠️ Don't render until the token is checked
+  if (state.isLoading) {
+    return null;
+  }
 
   return (
     <AuthContext.Provider value={authContext}>
       <SafeAreaView style={{flex: 1}}>
         <NavigationContainer
           ref={navigationRef}
+          onReady={() => BootSplash.hide({fade: true})}
           theme={{
             ...DefaultTheme,
             colors: {

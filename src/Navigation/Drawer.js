@@ -1,4 +1,4 @@
-import {Image, StyleSheet} from 'react-native'; // Import StatusBar
+import {StyleSheet} from 'react-native'; // Import StatusBar
 import React from 'react';
 import {createDrawerNavigator} from '@react-navigation/drawer';
 // import * as Outline from 'react-native-heroicons/outline';

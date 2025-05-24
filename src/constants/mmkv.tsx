@@ -1,10 +1,11 @@
-import {MMKV} from 'react-native-mmkv';
+import {MMKV, useMMKVString} from 'react-native-mmkv';
 
 export const Storage = new MMKV({
   id: 'com.sneakers',
   encryptionKey: 'sneakers',
 });
 
+export const token = Storage.getString('token');
 /**
  * Save or update a value
  * @param key - The key for the value

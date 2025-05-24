@@ -1,6 +1,7 @@
-import {ActivityIndicator, Dimensions, StatusBar, View} from 'react-native';
+import {Dimensions, StatusBar, View} from 'react-native';
 import React from 'react';
 import {theme} from '../constants/theme';
+import {ActivityIndicator} from 'react-native-paper';
 const {width, height} = Dimensions.get('window');
 
 const Loading = () => {
@@ -19,7 +20,7 @@ const Loading = () => {
         zIndex: 200,
       }}>
       <StatusBar backgroundColor={'#00000044'} />
-      <ActivityIndicator color={theme.primery} size={50} />
+      <ActivityIndicator animating={true} color={theme.primery} size={50} />
     </View>
   );
 };

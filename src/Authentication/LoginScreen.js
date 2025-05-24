@@ -1,12 +1,14 @@
-import React from 'react';
+import React, {useContext, useState} from 'react';
 import {
   ActivityIndicator,
   Dimensions,
+  Image,
   StyleSheet,
   Text,
   ToastAndroid,
   TouchableOpacity,
   View,
+  ScrollView,
 } from 'react-native';
 import {
   ChevronLeftIcon,
@@ -14,85 +16,84 @@ import {
   LockClosedIcon,
   UserIcon,
 } from 'react-native-heroicons/outline';
-import {ScrollView} from 'react-native-gesture-handler';
 
 import {theme} from '../constants/theme';
 import {InputField, SecurityIcon} from '../Components';
 import LongButton from '../Components/LongButton';
 import GoogleSignin from './GoogleSignIn';
-import {useLoginUserAccountMutation} from '../ReduxStore/apiSlice';
-
+import {hp, wp} from '../constants/Dimensions';
+import {POST} from '../services/apiServices';
+import {useMutation} from '@tanstack/react-query';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import {setItem} from '../constants/mmkv';
+import {AuthContext} from '../Navigation/Route';
+import showToast from '../Components/Toast';
 const {width, height} = Dimensions.get('screen');
-const input = 'text-sm font-semibold tracking-wider ';
 
 const LoginScreen = ({navigation}) => {
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
-  const [eye, setEye] = React.useState(true);
+  const {signIn} = useContext(AuthContext);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [eye, setEye] = useState(true);
 
-  const [loginUserAccount, {isLoading}] = useLoginUserAccountMutation();
+  const userLogin = useMutation({
+    mutationFn: data => POST('login', data),
+    onSuccess: data => {
+      if (data?.status) {
+        signIn(data);
+        setItem('user', JSON.stringify(data?.user));
+        showToast('Login successful');
 
-  const handleLogin = async () => {
-    try {
-      if (email.includes('@') && password.length > 4) {
-        const response = await loginUserAccount({email, password});
-
-        if (response?.error?.data?.message) {
-          ToastAndroid.showWithGravity(
-            response.error.data.message,
-            ToastAndroid.LONG,
-            ToastAndroid.CENTER,
-          );
-          return;
-        }
-
-        // await Storage.setToken(response.data?.token); // ✅ Use MMKV wrapper
-        navigation.replace('Drawer');
+        navigation.replace('BottomNavigation');
+      } else if (
+        data?.message ===
+        'Please verify your account with the OTP sent to your email.'
+      ) {
+        navigation.navigate('OtpScreen', {
+          email: email,
+          password: password,
+        });
+        showToast(data?.message);
       } else {
-        ToastAndroid.showWithGravity(
-          'Please enter your email and password properly',
-          ToastAndroid.SHORT,
-          ToastAndroid.CENTER,
-        );
+        showToast('Invalid credentials');
       }
-    } catch (error) {
-      ToastAndroid.showWithGravity(
-        `${error}`,
-        ToastAndroid.SHORT,
-        ToastAndroid.CENTER,
-      );
-    }
-  };
+    },
+    onError: error => {
+      showToast(error?.message || 'Login failed');
+    },
+  });
 
   return (
     <>
-      {isLoading && (
+      {userLogin?.isPending && (
         <View style={styles.loaderOverlay}>
-          <ActivityIndicator color={theme.primery} size={80} />
+          <ActivityIndicator color={theme.primery} size={wp(20)} />
         </View>
       )}
 
-      <ScrollView style={styles.container}>
-        <TouchableOpacity
-          onPress={() => navigation.pop()}
-          style={styles.backButton}>
-          <ChevronLeftIcon color={theme.darkColor} size={18} />
+      <KeyboardAwareScrollView
+        extraHeight={hp(20)}
+        enableOnAndroid={true}
+        contentContainerStyle={styles.scrollContent}
+        style={styles.container}>
+        <TouchableOpacity onPress={navigation.pop} style={styles.backButton}>
+          <ChevronLeftIcon color={theme.darkColor} size={wp(4.5)} />
         </TouchableOpacity>
-
         <View style={styles.formContainer}>
+          <Image
+            style={styles.logo}
+            source={require('../../assets/logo.png')}
+          />
+
           <View style={styles.welcomeText}>
-            <Text style={[styles.headingColor, styles.heading]}>
-              Hello Again!
-            </Text>
-            <Text style={[styles.textColor, styles.subText]}>
+            <Text style={styles.heading}>Hello Again!</Text>
+            <Text style={styles.subText}>
               Fill Your Details Or Continue With{'\n'}Social Media
             </Text>
           </View>
 
           <View style={styles.inputGroup}>
-            <Text className={input} style={styles.headingColor}>
-              Email Address
-            </Text>
+            <Text style={styles.label}>Email Address</Text>
             <InputField
               maxLength={40}
               autoComplete="email"
@@ -100,22 +101,24 @@ const LoginScreen = ({navigation}) => {
               onChangeText={setEmail}
               placeholder="Email address"
               prependChild={
-                <UserIcon strokeWidth={2} color={theme.primeryDark} size={22} />
+                <UserIcon
+                  strokeWidth={2}
+                  color={theme.primeryDark}
+                  size={wp(5)}
+                />
               }
               appendChild={
                 <EnvelopeIcon
                   strokeWidth={2}
                   color={theme.primeryDark}
-                  size={22}
+                  size={wp(5)}
                 />
               }
             />
           </View>
 
           <View style={styles.inputGroup}>
-            <Text className={input} style={styles.headingColor}>
-              Password
-            </Text>
+            <Text style={styles.label}>Password</Text>
             <InputField
               maxLength={45}
               autoComplete="password"
@@ -127,13 +130,13 @@ const LoginScreen = ({navigation}) => {
                 <LockClosedIcon
                   strokeWidth={2}
                   color={theme.primeryDark}
-                  size={22}
+                  size={wp(5)}
                 />
               }
               appendChild={
                 <SecurityIcon
                   color={theme.primeryDark}
-                  size={22}
+                  size={wp(5)}
                   setIcon={eye}
                   onPress={() => setEye(!eye)}
                 />
@@ -144,31 +147,28 @@ const LoginScreen = ({navigation}) => {
           <TouchableOpacity
             onPress={() => navigation.push('Forget')}
             style={styles.forgotPassword}>
-            <Text style={[styles.textColor, styles.forgotText]}>
-              Recovery Password
-            </Text>
+            <Text style={styles.forgotText}>Recovery Password</Text>
           </TouchableOpacity>
 
           <LongButton
             title="Sign In"
             backgroundColor={theme.primery}
             color={theme.backgroundColor}
-            onPress={handleLogin}
+            onPress={() => {
+              userLogin?.mutate({email, password});
+            }}
           />
 
           <GoogleSignin />
         </View>
 
         <View style={styles.footer}>
-          <Text style={[styles.textColor, styles.footerText]}>New User?</Text>
+          <Text style={styles.footerText}>New User?</Text>
           <TouchableOpacity onPress={() => navigation.push('Register')}>
-            <Text style={[styles.headingColor, styles.createAccountText]}>
-              {' '}
-              Create Account
-            </Text>
+            <Text style={styles.createAccountText}> Create Account</Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </>
   );
 };
@@ -178,83 +178,98 @@ export default LoginScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: '#fff',
   },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: wp(5),
+  },
   loaderOverlay: {
-    backgroundColor: '#00000044',
-    height: height + 100,
-    width: width,
     position: 'absolute',
+    top: 0,
+    height: height + wp(20),
+    width,
+    backgroundColor: '#00000044',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 200,
-    top: 0,
-    paddingBottom: 100,
   },
   backButton: {
+    margin: wp(3),
     backgroundColor: theme.secondaryBackground,
-    width: 48,
-    height: 48,
-    borderRadius: 999,
+    width: wp(12),
+    height: wp(12),
+    borderRadius: wp(6),
     justifyContent: 'center',
     alignItems: 'center',
+    position: 'absolute',
+    top: wp(3),
+    left: wp(3),
+    zIndex: 100,
   },
   formContainer: {
-    height: 700,
-    width: 360,
-    alignSelf: 'center',
+    width: wp(90),
+    paddingTop: wp(20),
+    paddingBottom: wp(6),
+    alignItems: 'center',
+  },
+  logo: {
+    width: wp(32),
+    height: wp(32),
+    borderRadius: wp(16),
+    marginBottom: wp(4),
   },
   welcomeText: {
-    marginVertical: 20,
+    marginBottom: wp(5),
+    alignItems: 'center',
   },
   heading: {
-    textAlign: 'center',
-    fontSize: 28,
-    letterSpacing: 2,
+    fontSize: wp(7),
     fontWeight: 'bold',
-    marginBottom: 8,
+    color: theme.darkColor,
+    marginBottom: wp(1.5),
   },
   subText: {
+    fontSize: wp(3.2),
     textAlign: 'center',
-    fontSize: 12,
-    letterSpacing: 1,
+    letterSpacing: 0.5,
+    color: theme.primeryDark,
   },
   inputGroup: {
-    marginBottom: 12,
+    width: '100%',
+    marginBottom: wp(3),
+  },
+  label: {
+    fontSize: wp(3.5),
+    fontWeight: '600',
+    color: theme.darkColor,
+    marginBottom: wp(1),
   },
   forgotPassword: {
     alignSelf: 'flex-end',
-    width: 128,
-    alignItems: 'flex-end',
-    marginBottom: 16,
+    marginBottom: wp(4),
   },
   forgotText: {
-    fontSize: 12,
+    fontSize: wp(3),
     fontWeight: '600',
-    letterSpacing: 0.5,
+    color: theme.primeryDark,
   },
   footer: {
     flexDirection: 'row',
-    alignSelf: 'center',
-    alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 16,
+    marginTop: wp(5),
   },
   footerText: {
-    fontSize: 14,
+    fontSize: wp(3.5),
     fontWeight: '600',
-    letterSpacing: 0.5,
+    color: theme.primeryDark,
   },
   createAccountText: {
-    fontSize: 14,
+    fontSize: wp(3.5),
     fontWeight: 'bold',
-    letterSpacing: 1,
-  },
-  headingColor: {
     color: theme.darkColor,
-  },
-  textColor: {
-    color: theme.primeryDark,
+    marginLeft: wp(1),
   },
 });

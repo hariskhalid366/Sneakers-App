@@ -39,6 +39,7 @@ const InputField = ({
             paddingLeft: 12,
             ...innerStyles,
           }}
+          autoCapitalize="none"
           keyboardAppearance="light"
           keyboardType={keyboardType}
           autoComplete={autoComplete}

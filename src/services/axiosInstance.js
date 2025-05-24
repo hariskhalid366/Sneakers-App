@@ -1,9 +1,9 @@
 import axios from 'axios';
-import Storage from '../constants/mmkv';
 import Config from 'react-native-config';
+import {getItem} from '../constants/mmkv';
 
 const axiosInstance = axios.create({
-  baseURL: Config.API_URL,
+  baseURL: 'http://192.168.0.124:5003',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -11,7 +11,7 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   async config => {
-    const token = Storage.getString('authToken');
+    const token = await getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

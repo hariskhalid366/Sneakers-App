@@ -1,93 +1,96 @@
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import React from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {ChevronLeftIcon} from 'react-native-heroicons/outline';
 import {theme} from '../constants/theme';
 import LongButton from '../Components/LongButton';
 import OTPTextInput from 'react-native-otp-textinput';
+import {wp, hp} from '../constants/Dimensions';
+import {useMutation} from '@tanstack/react-query';
+import {POST} from '../services/apiServices';
+import {setItem} from '../constants/mmkv';
+import showToast from '../Components/Toast';
+import {AuthContext} from '../Navigation/Route';
 
-const OtpScreen = ({navigation}) => {
-  const [otp, setOtp] = React.useState('');
-  const [time, setTime] = React.useState(30);
+const OtpScreen = ({navigation, route}) => {
+  const {signIn} = useContext(AuthContext);
+  const {email} = route.params;
+  const [otp, setOtp] = useState('');
+  const [time, setTime] = useState(30);
+  const otpInput = useRef(null);
 
-  const otpInput = React.useRef(null);
-
-  React.useEffect(() => {
+  useEffect(() => {
     const timer = setInterval(() => {
       if (time > 0) {
-        setTime(time - 1);
+        setTime(prev => prev - 1);
       }
     }, 1000);
 
-    return () => {
-      clearInterval(timer);
-    };
+    return () => clearInterval(timer);
   }, [time]);
 
+  const verifyOtp = useMutation({
+    mutationFn: data => POST('verify-otp', data),
+    onSuccess: data => {
+      if (data?.status) {
+        signIn(data);
+        setItem('user', JSON.stringify(data?.user));
+        showToast('Login successful');
+
+        navigation.replace('BottomNavigation');
+      } else {
+        showToast('Network error, please try again later');
+      }
+    },
+    onError: error => {
+      showToast(error?.message || 'Login failed');
+    },
+  });
+
   return (
-    <View className="flex-1 p-5 bg-white">
+    <View style={styles.container}>
       <TouchableOpacity
-        onPress={() => {
-          navigation.pop();
-        }}
-        style={{backgroundColor: theme.secondaryBackground}}
-        className="w-12 h-12 rounded-full justify-center items-center">
-        <ChevronLeftIcon color={theme.darkColor} size={'18'} />
+        onPress={() => navigation.pop()}
+        style={styles.backButton}>
+        <ChevronLeftIcon color={theme.darkColor} size={wp(4.5)} />
       </TouchableOpacity>
-      <View style={{height: 700, width: 360}}>
-        <View className="my-5 ">
-          <Text
-            style={styles.HeadingColor}
-            className="text-center text-3xl tracking-widest font-bold my-2">
-            OTP Verification
-          </Text>
-          <Text
-            style={styles.textColor}
-            className="text-center text-sm tracking-wider">
+
+      <View style={styles.contentWrapper}>
+        <View style={styles.header}>
+          <Text style={styles.headingText}>OTP Verification</Text>
+          <Text style={styles.subText}>
             Please Check Your Email To See The{'\n'}Verification Code
           </Text>
         </View>
-        <Text
-          style={{color: theme.darkColor}}
-          className="text-2xl font-bold tracking-wide">
-          OTP Code
-        </Text>
-        <View className="my-2">
+
+        <Text style={styles.label}>OTP Code</Text>
+
+        <View style={styles.otpInputContainer}>
           <OTPTextInput
-            containerStyle={{marginTop: 10}}
-            autoFocus={true}
+            containerStyle={{marginTop: hp(1)}}
+            autoFocus
+            defaultValue={otp}
             keyboardType="number-pad"
-            textInputStyle={{
-              borderWidth: 1,
-              borderColor: '#fff',
-              borderRadius: 16,
-              fontSize: 18,
-              fontWeight: 'bold',
-              color: theme.darkColor,
-            }}
+            textInputStyle={styles.otpBox}
             tintColor={theme.primery}
-            inputCount={4}
-            handleTextChange={value => {
-              setOtp(value);
-            }}
+            inputCount={6}
+            handleTextChange={setOtp}
             ref={otpInput}
           />
         </View>
+
         <LongButton
-          title={'Verify'}
+          title="Verify"
           backgroundColor={theme.primery}
           color={theme.backgroundColor}
-          onPress={() => {}}
+          onPress={() => {
+            verifyOtp.mutate({email, otp});
+          }}
         />
-        <View className="flex-row justify-between mx-1 my-5">
-          <Text
-            className="text-xs font-semibold tracking-wide "
-            style={{color: theme.secondaryDark}}>
-            Resend code to
-          </Text>
-          <Text
-            className="text-xs font-semibold tracking-wide "
-            style={{color: theme.secondaryDark}}>
-            00:{time}
+
+        <View style={styles.timerWrapper}>
+          <Text style={styles.timerText}>Resend code to</Text>
+          <Text style={styles.timerText}>
+            00:{time < 10 ? `0${time}` : time}
           </Text>
         </View>
       </View>
@@ -98,10 +101,68 @@ const OtpScreen = ({navigation}) => {
 export default OtpScreen;
 
 const styles = StyleSheet.create({
-  HeadingColor: {
+  container: {
+    flex: 1,
+    padding: wp(5),
+    backgroundColor: '#fff',
+  },
+  backButton: {
+    backgroundColor: theme.secondaryBackground,
+    width: wp(12),
+    height: wp(12),
+    borderRadius: wp(6),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  contentWrapper: {
+    height: hp(85),
+    width: wp(90),
+    alignSelf: 'center',
+  },
+  header: {
+    marginVertical: hp(2.5),
+  },
+  headingText: {
+    color: theme.darkColor,
+    fontSize: wp(7),
+    textAlign: 'center',
+    letterSpacing: 2,
+    fontWeight: 'bold',
+    marginBottom: hp(1),
+  },
+  subText: {
+    color: theme.primeryDark,
+    fontSize: wp(3.5),
+    textAlign: 'center',
+    letterSpacing: 0.5,
+  },
+  label: {
+    color: theme.darkColor,
+    fontSize: wp(5),
+    fontWeight: 'bold',
+    letterSpacing: 0.8,
+  },
+  otpInputContainer: {
+    marginVertical: hp(1.5),
+  },
+  otpBox: {
+    borderWidth: 1,
+    borderColor: '#fff',
+    borderRadius: wp(4),
+    fontSize: wp(4.5),
+    fontWeight: 'bold',
     color: theme.darkColor,
   },
-  textColor: {
-    color: theme.primeryDark,
+  timerWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginHorizontal: wp(2),
+    marginTop: hp(3),
+  },
+  timerText: {
+    fontSize: wp(3),
+    fontWeight: '600',
+    color: theme.secondaryDark,
+    letterSpacing: 0.5,
   },
 });

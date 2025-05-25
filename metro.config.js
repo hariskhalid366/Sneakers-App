@@ -1,12 +1,18 @@
-const {getDefaultConfig} = require('expo/metro-config');
-const {mergeConfig} = require('@react-native/metro-config');
+const {mergeConfig, getDefaultConfig} = require('@react-native/metro-config');
 const {withNativeWind} = require('nativewind/metro');
 
 // Retrieve the default Metro configuration
 const defaultConfig = getDefaultConfig(__dirname);
+
+/**
+ * Metro configuration
+ * https://reactnative.dev/docs/metro
+ *
+ * @type {import('@react-native/metro-config').MetroConfig}
+ */
+
 const {assetExts, sourceExts} = defaultConfig.resolver;
 
-// Define custom configurations
 const customConfig = {
   transformer: {
     babelTransformerPath: require.resolve('react-native-svg-transformer'),
@@ -16,7 +22,13 @@ const customConfig = {
     assetExts: assetExts.filter(ext => ext !== 'svg'),
     sourceExts: [...sourceExts, 'svg'],
     unstable_enablePackageExports: true,
-    unstable_conditionNames: ['react-native', 'browser', 'require'],
+    unstable_conditionNames: [
+      'react-native',
+      'browser',
+      'import',
+      'require',
+      'default',
+    ],
   },
 };
 

@@ -1,51 +1,36 @@
 import UIKit
-import Expo
 import React
-import React_RCTAppDelegate
-import ReactAppDependencyProvider
 
-@main
-class AppDelegate: ExpoAppDelegate {
+@UIApplicationMain
+class AppDelegate: UIResponder, UIApplicationDelegate {
+
   var window: UIWindow?
 
-  var reactNativeDelegate: ReactNativeDelegate?
-  var reactNativeFactory: RCTReactNativeFactory?
-
-  override func application(
+  func application(
     _ application: UIApplication,
-    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    let delegate = ReactNativeDelegate()
-    let factory = ExpoReactNativeFactory(delegate: delegate)
-    delegate.dependencyProvider = RCTAppDependencyProvider()
 
-    reactNativeDelegate = delegate
-    reactNativeFactory = factory
-    bindReactNativeFactory(factory)
+    let bridge = RCTBridge(delegate: self, launchOptions: launchOptions)
+    let rootView = RCTRootView(bridge: bridge!, moduleName: "Sneakers", initialProperties: nil)
+
+    let rootViewController = UIViewController()
+    rootViewController.view = rootView
 
     window = UIWindow(frame: UIScreen.main.bounds)
+    window?.rootViewController = rootViewController
+    window?.makeKeyAndVisible()
 
-    factory.startReactNative(
-      withModuleName: "Sneakers",
-      in: window,
-      launchOptions: launchOptions
-    )
-
-    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    return true
   }
 }
 
-class ReactNativeDelegate: ExpoReactNativeFactoryDelegate {
-  override func sourceURL(for bridge: RCTBridge) -> URL? {
-    // needed to return the correct URL for expo-dev-client.
-    bridge.bundleURL ?? bundleURL()
-  }
-
-  override func bundleURL() -> URL? {
+extension AppDelegate: RCTBridgeDelegate {
+  func sourceURL(for bridge: RCTBridge!) -> URL! {
 #if DEBUG
-    RCTBundleURLProvider.sharedSettings().jsBundleURL(forBundleRoot: ".expo/.virtual-metro-entry")
+    return RCTBundleURLProvider.sharedSettings().jsBundleURL(forBundleRoot: "index")
 #else
-    Bundle.main.url(forResource: "main", withExtension: "jsbundle")
+    return Bundle.main.url(forResource: "main", withExtension: "jsbundle")
 #endif
   }
 }

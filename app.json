@@ -1,7 +1,4 @@
 {
   "name": "Sneakers",
-  "displayName": "Sneakers",
-  "expo": {
-    "userInterfaceStyle": "automatic"
-  }
+  "displayName": "Sneakers"
 }

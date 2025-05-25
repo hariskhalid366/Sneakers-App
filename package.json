@@ -32,7 +32,6 @@
     "@tanstack/react-query": "^5.77.0",
     "@walletconnect/react-native-compat": "^2.20.3",
     "axios": "^1.9.0",
-    "expo": ">=53.0.0-0 <54.0.0",
     "lottie-react-native": "^7.2.2",
     "nativewind": "^4.1.23",
     "react": "19.0.0",

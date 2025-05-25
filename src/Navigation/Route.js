@@ -18,7 +18,6 @@ import {
   ProductScreen,
   SearchScreen,
 } from '../Screens';
-import WalletScreen from '../Screens/WalletScreen';
 import Drawer from './Drawer';
 import {theme} from '../constants/theme';
 import {getItem, removeItem, setItem} from '../constants/mmkv';

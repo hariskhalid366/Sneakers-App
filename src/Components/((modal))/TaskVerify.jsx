@@ -26,6 +26,7 @@ const TaskVerifyModal = ({ref, selectedTask, text, setText, handleVerify}) => {
         {...props}
         appearsOnIndex={0}
         disappearsOnIndex={-1}
+        pressBehavior="close"
       />
     ),
     [],

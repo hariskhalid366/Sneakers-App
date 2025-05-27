@@ -22,12 +22,14 @@ import Drawer from './Drawer';
 import {theme} from '../constants/theme';
 import {getItem, removeItem, setItem} from '../constants/mmkv';
 import showToast from '../Components/Toast';
+import ChatBotModal from '../Components/((modal))/ChatBotModal';
+import SetNewPassword from '../Authentication/SetNewPassword';
 
 const Stack = createNativeStackNavigator();
 export const AuthContext = React.createContext();
 
 const Route = () => {
-  const navigationRef = useRef();
+  const navigationRef = React.useRef();
 
   const [state, dispatch] = useReducer(
     (prevState, action) => {
@@ -104,8 +106,8 @@ const Route = () => {
             ...DefaultTheme,
             colors: {
               primary: '#fff',
-              background: theme.backgroundColor,
-              card: theme.backgroundColor,
+              background: '#fff',
+              card: '#fff',
               text: '#000',
               border: '#fff',
               notification: '#000',
@@ -137,6 +139,7 @@ const Route = () => {
                 <Stack.Screen name="Register" component={RegisterScreen} />
                 <Stack.Screen name="OtpScreen" component={OtpScreen} />
                 <Stack.Screen name="Forget" component={ForgetPasswordScreen} />
+                <Stack.Screen name="NewPassword" component={SetNewPassword} />
               </>
             ) : (
               <>
@@ -147,10 +150,19 @@ const Route = () => {
                 <Stack.Screen name="Search" component={SearchScreen} />
                 <Stack.Screen name="Product" component={ProductScreen} />
                 <Stack.Screen
+                  name="ChatBot"
+                  component={ChatBotModal}
+                  options={{
+                    gestureEnabled: true,
+                    gestureDirection: 'horizontal',
+                    presentation: 'fullScreenModal',
+                    // animation:"slide_from_bottom"
+                  }}
+                />
+                <Stack.Screen
                   name="SearchOrdredProduct"
                   component={OrderedProduct}
                 />
-                <Stack.Screen name="Wallet" component={WalletScreen} />
               </>
             )}
           </Stack.Navigator>

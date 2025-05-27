@@ -52,7 +52,7 @@ const Drawer = () => {
           backgroundColor: '#fff',
           height: hp(90),
           top: hp(2.5),
-          left: wp(5),
+          // left: wp(5),
           width: wp(65),
           borderRadius: 20,
           overflow: 'hidden',

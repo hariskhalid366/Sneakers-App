@@ -39,7 +39,7 @@ const ShoesCard = ({item, favourite, setRef}) => {
 
   const pressOnProduct = () => {
     dispatch(productSlice.actions.setSelectedProduct(item.id));
-    navigation.navigate('Product');
+    navigation.navigate('Product', {id: item?._id || item.id});
     // navigation.navigate('Product', {id: item._id});
   };
 
@@ -53,7 +53,7 @@ const ShoesCard = ({item, favourite, setRef}) => {
     <View
       key={item?.id}
       style={{width: width * 0.43}}
-      className="flex-1 bg-white my-3 mx-1 rounded-2xl">
+      className="flex-1 bg-white elevation-sm my-3 mx-1 rounded-2xl">
       <View className="px-3 py-2">
         <TouchableOpacity
           onPress={() => {

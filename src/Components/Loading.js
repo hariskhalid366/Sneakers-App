@@ -19,7 +19,6 @@ const Loading = () => {
         alignItems: 'center',
         zIndex: 200,
       }}>
-      <StatusBar backgroundColor={'#00000044'} />
       <ActivityIndicator animating={true} color={theme.primery} size={50} />
     </View>
   );

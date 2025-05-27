@@ -13,7 +13,7 @@ import {AuthContext} from '../Navigation/Route';
 
 const OtpScreen = ({navigation, route}) => {
   const {signIn} = useContext(AuthContext);
-  const {email} = route.params;
+  const {email, passwordReset = false} = route.params;
   const [otp, setOtp] = useState('');
   const [time, setTime] = useState(30);
   const otpInput = useRef(null);
@@ -32,6 +32,11 @@ const OtpScreen = ({navigation, route}) => {
     mutationFn: data => POST('verify-otp', data),
     onSuccess: data => {
       if (data?.status) {
+        if (passwordReset) {
+          navigation.replace('NewPassword', {email, otp});
+          showToast('OTP verified, please reset your password');
+          return;
+        }
         signIn(data);
         setItem('user', JSON.stringify(data?.user));
         showToast('Login successful');
@@ -42,7 +47,7 @@ const OtpScreen = ({navigation, route}) => {
       }
     },
     onError: error => {
-      showToast(error?.message || 'Login failed');
+      showToast(error?.message || 'Something went wrong');
     },
   });
 

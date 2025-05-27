@@ -72,7 +72,7 @@ const HomeScreen = ({navigation}) => {
   return (
     <>
       <Notification ref={toastRef} />
-      <ChatBotModal ref={bottomSheetRef} />
+      {/* <ChatBotModal ref={bottomSheetRef} /> */}
 
       <ModalMenu setVisible={setVisible} visible={visible} />
       <AnimatedFAB
@@ -85,7 +85,7 @@ const HomeScreen = ({navigation}) => {
         label={'Sneakers Assistant'}
         extended={isExtended}
         onPress={() => {
-          bottomSheetRef.current.present();
+          navigation.navigate('ChatBot');
         }}
         color="#fff"
         visible={isVisible}
@@ -95,8 +95,7 @@ const HomeScreen = ({navigation}) => {
       <ScrollView
         onScroll={onScroll}
         scrollEventThrottle={20}
-        className="flex p-5"
-        style={{backgroundColor: theme.secondaryBackground}}>
+        className="flex p-5">
         <HeaderComp
           title={'Explore'}
           apppend={

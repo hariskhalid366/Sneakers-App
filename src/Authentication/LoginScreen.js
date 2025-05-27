@@ -59,7 +59,7 @@ const LoginScreen = ({navigation}) => {
       }
     },
     onError: error => {
-      showToast(error?.message || 'Login failed');
+      showToast(error?.message || 'Something went wrong');
     },
   });
 

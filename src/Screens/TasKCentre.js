@@ -1,3 +1,4 @@
+import React, {useRef, useState} from 'react';
 import {
   Image,
   StyleSheet,
@@ -9,16 +10,15 @@ import {
   ToastAndroid,
   Keyboard,
 } from 'react-native';
-import React, {useRef, useState} from 'react';
-import {HeaderComp, Notification} from '../Components';
+import {HeaderComp, Loading, Notification} from '../Components';
 import {ChevronLeftIcon} from 'react-native-heroicons/outline';
 import {theme} from '../constants/theme';
-import Tasks from '../constants/task.json';
 import {TouchableRipple} from 'react-native-paper';
 import {wp} from '../constants/Dimensions';
 import TaskVerifyModal from '../Components/((modal))/TaskVerify';
-import ChatBotModal from '../Components/((modal))/ChatBotModal';
-import {Pressable} from 'react-native-gesture-handler';
+import {useMutation, useQuery} from '@tanstack/react-query';
+import showToast from '../Components/Toast';
+import {completeTasks, tasks} from '../services/apiServices';
 
 const platformIcons = {
   youtube: require('../../assets/youtube.png'),
@@ -29,200 +29,62 @@ const platformIcons = {
   linkedin: require('../../assets/linkedin.png'),
 };
 
-const TasKCentre = ({navigation}) => {
-  const [data, setData] = useState([
-    {
-      id: 'task_1',
-      type: 'subscribe',
-      platform: 'youtube',
-      target: 'https://www.youtube.com/@Nike',
-      description: "Subscribe to Nike's YouTube channel",
-      points: 50,
-      completed: false,
-    },
-    {
-      id: 'task_2',
-      type: 'like_video',
-      platform: 'youtube',
-      target: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-      description: 'Like this YouTube video',
-      points: 20,
-      completed: false,
-    },
-    {
-      id: 'task_3',
-      type: 'follow',
-      platform: 'instagram',
-      target: 'https://www.instagram.com/adidas/',
-      description: 'Follow Adidas on Instagram',
-      points: 30,
-      completed: false,
-    },
-    {
-      id: 'task_4',
-      type: 'like_post',
-      platform: 'instagram',
-      target: 'https://www.instagram.com/p/CZxyz12345/',
-      description: 'Like this Instagram post',
-      points: 15,
-      completed: false,
-    },
-    {
-      id: 'task_5',
-      type: 'comment',
-      platform: 'instagram',
-      target: 'https://www.instagram.com/p/CZxyz12345/',
-      description: 'Comment on this Instagram post',
-      points: 25,
-      completed: false,
-    },
-    {
-      id: 'task_6',
-      type: 'follow',
-      platform: 'facebook',
-      target: 'https://www.facebook.com/Nike',
-      description: 'Follow Nike on Facebook',
-      points: 30,
-      completed: false,
-    },
-    {
-      id: 'task_7',
-      type: 'share',
-      platform: 'facebook',
-      target: 'https://www.facebook.com/Nike/posts/10159538320260312',
-      description: 'Share this Facebook post',
-      points: 40,
-      completed: false,
-    },
-    {
-      id: 'task_8',
-      type: 'follow',
-      platform: 'twitter',
-      target: 'https://twitter.com/Nike',
-      description: 'Follow Nike on Twitter (X)',
-      points: 30,
-      completed: false,
-    },
-    {
-      id: 'task_9',
-      type: 'retweet',
-      platform: 'twitter',
-      target: 'https://twitter.com/Nike/status/1720012345678901234',
-      description: 'Retweet this post from Nike',
-      points: 40,
-      completed: false,
-    },
-    {
-      id: 'task_10',
-      type: 'like_tweet',
-      platform: 'twitter',
-      target: 'https://twitter.com/Nike/status/1720012345678901234',
-      description: 'Like this tweet',
-      points: 20,
-      completed: false,
-    },
-    {
-      id: 'task_11',
-      type: 'follow',
-      platform: 'tiktok',
-      target: 'https://www.tiktok.com/@nike',
-      description: 'Follow Nike on TikTok',
-      points: 30,
-      completed: false,
-    },
-    {
-      id: 'task_12',
-      type: 'like_video',
-      platform: 'tiktok',
-      target: 'https://www.tiktok.com/@nike/video/7234567890123456789',
-      description: 'Like this TikTok video',
-      points: 20,
-      completed: false,
-    },
-    {
-      id: 'task_13',
-      type: 'comment',
-      platform: 'tiktok',
-      target: 'https://www.tiktok.com/@nike/video/7234567890123456789',
-      description: 'Comment on this TikTok video',
-      points: 25,
-      completed: false,
-    },
-    {
-      id: 'task_14',
-      type: 'follow',
-      platform: 'linkedin',
-      target: 'https://www.linkedin.com/company/nike/',
-      description: 'Follow Nike on LinkedIn',
-      points: 30,
-      completed: false,
-    },
-    {
-      id: 'task_15',
-      type: 'like_post',
-      platform: 'linkedin',
-      target:
-        'https://www.linkedin.com/feed/update/urn:li:activity:7021234567891234567',
-      description: 'Like this LinkedIn post',
-      points: 20,
-      completed: false,
-    },
-    {
-      id: 'task_16',
-      type: 'comment',
-      platform: 'linkedin',
-      target:
-        'https://www.linkedin.com/feed/update/urn:li:activity:7021234567891234567',
-      description: 'Comment on this LinkedIn post',
-      points: 25,
-      completed: false,
-    },
-    {
-      id: 'task_17',
-      type: 'join_group',
-      platform: 'facebook',
-      target: 'https://www.facebook.com/groups/nikefans/',
-      description: 'Join the Nike Fans Facebook group',
-      points: 35,
-      completed: false,
-    },
-    {
-      id: 'task_18',
-      type: 'tag_friend',
-      platform: 'instagram',
-      target: 'https://www.instagram.com/p/CZxyz12345/',
-      description: 'Tag a friend in this Instagram post',
-      points: 25,
-      completed: false,
-    },
-    {
-      id: 'task_19',
-      type: 'repost',
-      platform: 'instagram',
-      target: 'https://www.instagram.com/p/CZxyz12345/',
-      description: 'Repost this story to your Instagram story',
-      points: 30,
-      completed: false,
-    },
-    {
-      id: 'task_20',
-      type: 'use_hashtag',
-      platform: 'twitter',
-      target: '#NikeChallenge',
-      description: 'Tweet with the hashtag #NikeChallenge',
-      points: 35,
-      completed: false,
-    },
-  ]);
+const TaskCentre = ({navigation}) => {
   const sheetRef = useRef(null);
   const notificationRef = useRef(null);
 
   const [selectedTask, setSelectedTask] = useState(null);
   const [text, setText] = useState('');
 
+  const {data, isLoading, error} = useQuery({
+    queryKey: ['tasks'],
+    queryFn: tasks,
+    experimental_prefetchInRender: true,
+  });
+
+  const verifyTask = useMutation({
+    mutationFn: id => completeTasks({taskId: id}),
+    onSuccess: res => {
+      if (res?.status) {
+        notificationRef?.current.show({
+          type: 'coin',
+          text: `Task ${selectedTask.description} verified successfully!`,
+        });
+      } else {
+        showToast(res?.message);
+      }
+      setSelectedTask(null);
+      sheetRef.current?.close();
+      setText('');
+    },
+    onError: err => {
+      console.error('Error verifying task:', err);
+      showToast('Error verifying task. Please try again.');
+    },
+  });
+
+  const handleVerify = () => {
+    Keyboard.dismiss();
+    if (!selectedTask || !text) {
+      return showToast('Please enter the verification text.');
+    }
+
+    if (text === selectedTask.target) {
+      verifyTask.mutate(selectedTask?._id);
+    } else {
+      ToastAndroid.show(
+        'Verification failed. Please check the link.',
+        ToastAndroid.SHORT,
+      );
+      sheetRef.current?.close();
+      setSelectedTask(null);
+      setText('');
+    }
+  };
+
   const Header = () => (
     <HeaderComp
-      title={'Task Center'}
+      title="Task Center"
       apppend={<View className="w-10" />}
       prepend={
         <TouchableOpacity
@@ -234,51 +96,23 @@ const TasKCentre = ({navigation}) => {
     />
   );
 
-  const handleVerify = () => {
-    if (!selectedTask) return;
-    if (!text) return;
-    if (text === selectedTask.target) {
-      setData(prev =>
-        prev.map(task =>
-          task.id === selectedTask.id ? {...task, completed: true} : task,
-        ),
-      );
-      setSelectedTask(null);
-      sheetRef.current?.close();
-      notificationRef.current.show({
-        type: 'coin',
-        text: `Task ${selectedTask.description} verified successfully!`,
-      });
-    } else {
-      ToastAndroid.show(
-        'Verification failed. Please check the link.',
-        ToastAndroid.SHORT,
-      );
-      Keyboard.dismiss();
-      setSelectedTask(null);
-      sheetRef.current?.close();
-
-      setText('');
-    }
-  };
-
-  const renderItem = ({item}) => {
-    const iconSource = platformIcons[item.platform];
+  const renderItem = ({item, index}) => {
+    const isSelected = item?.target === selectedTask?.target;
+    const iconSource = platformIcons[item?.platform];
 
     return (
       <TouchableRipple
+        key={index}
         onPress={() => {
-          Linking.openURL(item.target);
+          Linking.openURL(item?.target);
           setSelectedTask(item);
         }}
         rippleColor="rgba(13, 110, 253, 0.1)"
         style={[
           styles.card,
           {
-            borderWidth:
-              item?.target === selectedTask?.target
-                ? 1.5
-                : StyleSheet.hairlineWidth,
+            borderWidth: isSelected ? 1.5 : StyleSheet.hairlineWidth,
+            borderColor: item?.status ? 'red' : theme.primery,
           },
         ]}>
         <View style={styles.row}>
@@ -288,24 +122,21 @@ const TasKCentre = ({navigation}) => {
                 source={iconSource}
                 style={styles.icon}
                 resizeMode="cover"
-                resizeMethod="scale"
               />
             </View>
           )}
           <View style={styles.info}>
-            <Text style={styles.description}>{item.description}</Text>
-            <Text style={styles.points}>+{item.points} points</Text>
+            <Text style={styles.description}>{item?.description}</Text>
+            <Text style={styles.points}>+{item?.points} points</Text>
           </View>
-          {item.target === selectedTask?.target && (
+          {isSelected && (
             <TouchableOpacity
-              onPress={() => sheetRef.current.expand()}
-              className="p-3 rounded-xl bg-[#0D6EFD]">
-              <Text
-                className="text-white font-semibold"
-                onPress={() => {
-                  Linking.openURL(item.target);
-                }}>
-                Verify
+              onPress={() => {
+                !item?.status && sheetRef.current.expand();
+              }}
+              style={styles.verifyBtn}>
+              <Text style={styles.verifyText}>
+                {item?.status ? 'Verified' : 'Verify'}
               </Text>
             </TouchableOpacity>
           )}
@@ -314,13 +145,18 @@ const TasKCentre = ({navigation}) => {
     );
   };
 
+  if (error) {
+    showToast(error?.message);
+  }
+
   return (
     <>
+      {isLoading && <Loading />}
       <Notification ref={notificationRef} />
       <View className="flex-1 p-5 bg-[#F7F7F9]">
         <Header />
         <FlatList
-          data={data}
+          data={data?.data}
           keyExtractor={item => item.id}
           renderItem={renderItem}
           showsVerticalScrollIndicator={false}
@@ -337,15 +173,14 @@ const TasKCentre = ({navigation}) => {
   );
 };
 
-export default TasKCentre;
+export default TaskCentre;
 
 const styles = StyleSheet.create({
   card: {
     backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 15,
-    marginVertical: 5,
-    borderColor: theme.primery,
+    borderRadius: wp(2),
+    padding: wp(4),
+    marginVertical: wp(1),
   },
   row: {
     flexDirection: 'row',
@@ -355,26 +190,36 @@ const styles = StyleSheet.create({
     width: wp(10),
     height: wp(10),
     backgroundColor: theme.secondaryBackground,
-    borderRadius: 5,
-    marginRight: 10,
+    borderRadius: wp(1.5),
+    marginRight: wp(3),
   },
   icon: {
     width: '100%',
     height: '100%',
   },
-
   info: {
     flex: 1,
   },
   description: {
     fontSize: wp(4),
-    color: '#000',
     fontWeight: '600',
+    color: '#000',
   },
   points: {
     fontSize: wp(3),
-    color: '#0D6EFD',
     fontWeight: '600',
-    marginTop: 4,
+    color: theme.primery,
+    marginTop: wp(1),
+  },
+  verifyBtn: {
+    paddingVertical: wp(2),
+    paddingHorizontal: wp(4),
+    backgroundColor: theme.primery,
+    borderRadius: wp(2),
+  },
+  verifyText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: wp(3.5),
   },
 });

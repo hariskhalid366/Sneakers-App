@@ -1,60 +1,29 @@
-import React, {
-  forwardRef,
-  useMemo,
-  useCallback,
-  useState,
-  useRef,
-  useEffect,
-} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+  FlatList,
+  SafeAreaView,
+} from 'react-native';
 import {GoogleGenAI} from '@google/genai';
-import BottomSheet, {
-  BottomSheetBackdrop,
-  BottomSheetFlatList,
-  BottomSheetModal,
-  BottomSheetView,
-  useBottomSheetModal,
-  useBottomSheetSpringConfigs,
-} from '@gorhom/bottom-sheet';
-import {StyleSheet, Text, View, Image, TouchableOpacity} from 'react-native';
+import {ChevronLeftIcon} from 'react-native-heroicons/outline';
+import {hp, wp} from '../../constants/Dimensions';
 import {theme} from '../../constants/theme';
 import InputMessage from '../InputMessage';
-import {ChevronDownIcon} from 'react-native-heroicons/outline';
-import {hp, wp} from '../../constants/Dimensions';
-import {FlatList} from 'react-native-gesture-handler';
 
-const ChatBotModal = forwardRef((props, ref) => {
-  const snapPoints = useMemo(() => ['100%'], []);
+const ChatBotScreen = ({navigation}) => {
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([]);
   const listRef = useRef(null);
 
-  const {dismiss} = useBottomSheetModal();
-
   useEffect(() => {
     handleSend({content: 'Hello!'});
-  }, [ref]);
+  }, []);
 
-  // const handleSend = ({content}) => {
-  //   if (content?.trim()) {
-  //     const userMsg = {
-  //       id: Date.now().toString(),
-  //       text: content,
-  //       sender: 'user',
-  //     };
-  //     setMessages(prev => [userMsg, ...prev]);
-
-  //     setTimeout(() => {
-  //       const botMsg = {
-  //         id: (Date.now() + 1).toString(),
-  //         text: content,
-  //         sender: 'bot',
-  //       };
-  //       setMessages(prev => [botMsg, ...prev]);
-  //     }, 800);
-  //   }
-  // };
-
-  const GEMINI_API_KEY = 'AIzaSyCgnpSW0e37RdjpUnVo67pceYW9vFWpW6E'; // Secure this in production
+  const GEMINI_API_KEY = 'AIzaSyCgnpSW0e37RdjpUnVo67pceYW9vFWpW6E';
   const ai = new GoogleGenAI({apiKey: GEMINI_API_KEY});
 
   const handleSend = async ({content}) => {
@@ -71,33 +40,18 @@ const ChatBotModal = forwardRef((props, ref) => {
     try {
       const response = await ai.models.generateContent({
         model: 'gemini-2.0-flash',
-        contents: `Only answer this if it is about sneakers, shoes, presents . If it's not, just respond with: "I’m here to assist you about shoes." Now, here's the question: ${content}`,
+        contents: `Only answer this if it is about sneakers, shoes, presents. If it's not, just respond with: "I’m here to assist you about shoes." Now, here's the question: ${content}`,
       });
 
-      if (response.text) {
-        const botReply =
-          response?.text || 'I’m here to assist you about shoes.';
-
-        const botMsg = {
-          id: (Date.now() + 1).toString(),
-          text: botReply,
-          sender: 'bot',
-        };
-
-        setMessages(prev => [botMsg, ...prev]);
-        setLoading(false);
-      } else {
-        const botMsg = {
-          id: (Date.now() + 1).toString(),
-          text: "Sorry, I couldn't process your request. Seems like you have broken internet connection",
-          sender: 'bot',
-        };
-        setMessages(prev => [botMsg, ...prev]);
-        setLoading(false);
-      }
+      const botReply = response?.text || 'I’m here to assist you about shoes.';
+      const botMsg = {
+        id: (Date.now() + 1).toString(),
+        text: botReply,
+        sender: 'bot',
+      };
+      setMessages(prev => [botMsg, ...prev]);
     } catch (error) {
       console.error('Gemini API error:', error);
-      setLoading(false);
       setMessages(prev => [
         {
           id: (Date.now() + 1).toString(),
@@ -106,34 +60,16 @@ const ChatBotModal = forwardRef((props, ref) => {
         },
         ...prev,
       ]);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Scroll to top of inverted FlatList when messages update
   useEffect(() => {
     if (listRef.current && messages.length > 0) {
       listRef.current.scrollToOffset({offset: 0, animated: true});
     }
   }, [messages]);
-
-  const renderBackdrop = useCallback(
-    props => (
-      <BottomSheetBackdrop
-        {...props}
-        appearsOnIndex={0}
-        disappearsOnIndex={-1}
-      />
-    ),
-    [],
-  );
-
-  const animationConfigs = useBottomSheetSpringConfigs({
-    damping: 80,
-    overshootClamping: true,
-    restDisplacementThreshold: 0.1,
-    restSpeedThreshold: 0.1,
-    stiffness: 500,
-  });
 
   const renderItem = ({item}) => (
     <View
@@ -152,62 +88,44 @@ const ChatBotModal = forwardRef((props, ref) => {
   );
 
   return (
-    <BottomSheetModal
-      ref={ref}
-      simultaneousHandlers={listRef}
-      snapPoints={snapPoints}
-      handleIndicatorStyle={{backgroundColor: theme.primery}}
-      handleStyle={{height: 10}}
-      backdropComponent={renderBackdrop}
-      animationConfigs={animationConfigs}
-      keyboardBehavior="interactive"
-      android_keyboardInputMode="adjustResize"
-      backgroundStyle={{backgroundColor: theme.backgroundColor}}
-      style={styles.sheetContainer}>
-      <BottomSheetView style={styles.contentContainer}>
-        <BottomSheetView style={styles.header}>
-          <TouchableOpacity onPress={() => dismiss()} style={styles.touchable}>
-            <ChevronDownIcon color={'#000'} size={wp(6)} />
-          </TouchableOpacity>
-          <Text style={styles.headerText}>Chat</Text>
-          <Image
-            source={require('../../../assets/chat.png')}
-            style={{width: 50, height: 50}}
-          />
-        </BottomSheetView>
-        <FlatList
-          ref={listRef}
-          style={{
-            flex: 1,
-            backgroundColor: theme.secondaryBackground,
-            margin: 10,
-            borderRadius: 20,
-            maxHeight: hp(75),
-          }}
-          data={messages}
-          keyExtractor={item => item.id}
-          renderItem={renderItem}
-          contentContainerStyle={{padding: 16, paddingBottom: 100}}
-          showsVerticalScrollIndicator={false}
-          inverted
-          keyboardDismissMode="on-drag"
-          keyboardShouldPersistTaps="handled"
+    <SafeAreaView style={styles.screen}>
+      <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.touchable}>
+          <ChevronLeftIcon color={'#000'} size={wp(6)} />
+        </TouchableOpacity>
+        <Text style={styles.headerText}>Chat</Text>
+        <Image
+          source={require('../../../assets/chat.png')}
+          style={{width: 50, height: 50}}
         />
+      </View>
 
-        <InputMessage onSend={handleSend} loading={loading} />
-      </BottomSheetView>
-    </BottomSheetModal>
+      <FlatList
+        ref={listRef}
+        style={styles.messageList}
+        data={messages}
+        keyExtractor={item => item.id}
+        renderItem={renderItem}
+        contentContainerStyle={{padding: 16, paddingBottom: 100}}
+        showsVerticalScrollIndicator={false}
+        inverted
+        keyboardDismissMode="on-drag"
+        keyboardShouldPersistTaps="handled"
+      />
+
+      <InputMessage onSend={handleSend} loading={loading} />
+    </SafeAreaView>
   );
-});
+};
 
-export default ChatBotModal;
+export default ChatBotScreen;
 
 const styles = StyleSheet.create({
-  sheetContainer: {
-    backgroundColor: 'white',
-  },
-  contentContainer: {
+  screen: {
     flex: 1,
+    backgroundColor: theme.backgroundColor,
   },
   header: {
     marginHorizontal: 10,
@@ -220,6 +138,19 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: theme.darkColor,
     padding: 16,
+  },
+  touchable: {
+    padding: 13,
+    borderRadius: wp(100),
+    backgroundColor: '#fff',
+    elevation: 4,
+  },
+  messageList: {
+    flex: 1,
+    backgroundColor: theme.secondaryBackground,
+    margin: 10,
+    borderRadius: 20,
+    maxHeight: hp(75),
   },
   messageBubble: {
     maxWidth: '80%',
@@ -237,13 +168,6 @@ const styles = StyleSheet.create({
   },
   messageText: {
     fontSize: wp(3.5),
-    color: '#000',
     fontWeight: '600',
-  },
-  touchable: {
-    padding: 13,
-    borderRadius: wp(100),
-    backgroundColor: '#fff',
-    elevation: 4,
   },
 });

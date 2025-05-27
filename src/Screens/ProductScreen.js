@@ -1,6 +1,6 @@
 import {Image, StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 import React, {useRef} from 'react';
-import {HeaderComp, Notification} from '../Components';
+import {HeaderComp, Loading, Notification} from '../Components';
 import {
   ChevronLeftIcon,
   HeartIcon,
@@ -15,40 +15,22 @@ import Animated from 'react-native-reanimated';
 import {MoreOrLess} from '@rntext/more-or-less';
 import {useCart} from '../AsyncStorage/cartStorage';
 import {useFavorites} from '../AsyncStorage/FavStorage';
+import {useQuery} from '@tanstack/react-query';
+import {getProductsByID} from '../services/apiServices';
+import showToast from '../Components/Toast';
 
 const ProductScreen = ({navigation, route}) => {
-  // const id = route.params.id;
+  const {id} = route.params;
+  const {data, isLoading, error} = useQuery({
+    queryKey: ['product', id],
+    queryFn: () => getProductsByID(id),
+  });
+
+  const product = data?.product;
 
   const {addToCart} = useCart();
 
-  const product = useSelector(state => state.products.selectedProduct);
-
-  // const {data, isLoading, error} = useGetProductQuery(id);
-
-  // const product = data?.data;
-
-  // if (isLoading) {
-  //   return (
-  //     <View className="flex items-center m-6 justify-center">
-  //       <LottieView
-  //         source={require('../../assets/lottieAnimation/animation.json')}
-  //         style={{width: 50, height: 50}}
-  //         autoPlay
-  //         loop
-  //       />
-  //     </View>
-  //   );
-  // }
-
-  // if (error) {
-  //   ToastAndroid.showWithGravityAndOffset(
-  //     'Network Connection Error',
-  //     ToastAndroid.LONG,
-  //     ToastAndroid.BOTTOM,
-  //     25,
-  //     50,
-  //   );
-  // }
+  // const product = useSelector(state => state.products.selectedProduct);
 
   const [Images, setImages] = React.useState(product?.image);
 
@@ -88,9 +70,13 @@ const ProductScreen = ({navigation, route}) => {
   };
 
   const toastRef = useRef();
+  if (error) {
+    showToast(error.message || 'Something went wrong');
+  }
 
   return (
     <>
+      {isLoading && <Loading />}
       <Notification ref={toastRef} />
       <View className="flex-1 bg-background p-3.5">
         <HeaderComp

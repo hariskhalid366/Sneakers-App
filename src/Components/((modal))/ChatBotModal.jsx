@@ -6,7 +6,7 @@ import {
   Image,
   TouchableOpacity,
   FlatList,
-  SafeAreaView,
+  KeyboardAvoidingView,
 } from 'react-native';
 import {GoogleGenAI} from '@google/genai';
 import {ChevronLeftIcon} from 'react-native-heroicons/outline';
@@ -88,35 +88,40 @@ const ChatBotScreen = ({navigation}) => {
   );
 
   return (
-    <SafeAreaView style={styles.screen}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.touchable}>
-          <ChevronLeftIcon color={'#000'} size={wp(6)} />
-        </TouchableOpacity>
-        <Text style={styles.headerText}>Chat</Text>
-        <Image
-          source={require('../../../assets/chat.png')}
-          style={{width: 50, height: 50}}
+    <KeyboardAvoidingView
+      style={{flex: 1}}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? hp(10) : 0}>
+      <View style={styles.screen}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.touchable}>
+            <ChevronLeftIcon color={'#000'} size={wp(6)} />
+          </TouchableOpacity>
+          <Text style={styles.headerText}>Chat</Text>
+          <Image
+            source={require('../../../assets/chat.png')}
+            style={{width: 50, height: 50}}
+          />
+        </View>
+
+        <FlatList
+          ref={listRef}
+          style={styles.messageList}
+          data={messages}
+          keyExtractor={item => item.id}
+          renderItem={renderItem}
+          contentContainerStyle={{padding: 16, paddingBottom: 100}}
+          showsVerticalScrollIndicator={false}
+          inverted
+          keyboardDismissMode="on-drag"
+          keyboardShouldPersistTaps="handled"
         />
+
+        <InputMessage onSend={handleSend} loading={loading} />
       </View>
-
-      <FlatList
-        ref={listRef}
-        style={styles.messageList}
-        data={messages}
-        keyExtractor={item => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={{padding: 16, paddingBottom: 100}}
-        showsVerticalScrollIndicator={false}
-        inverted
-        keyboardDismissMode="on-drag"
-        keyboardShouldPersistTaps="handled"
-      />
-
-      <InputMessage onSend={handleSend} loading={loading} />
-    </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -128,6 +133,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.backgroundColor,
   },
   header: {
+    paddingTop: wp(10),
     marginHorizontal: 10,
     flexDirection: 'row',
     alignItems: 'center',
@@ -146,7 +152,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   messageList: {
-    flex: 1,
+    flexGrow: 1,
     backgroundColor: theme.secondaryBackground,
     margin: 10,
     borderRadius: 20,

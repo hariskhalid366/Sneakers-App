@@ -1,6 +1,6 @@
 import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react';
 
-const baseUrl = 'http://192.168.1.116:8000/';
+const baseUrl = 'https://skeaks.vercel.app';
 
 export const apiSlice = createApi({
   reducerPath: 'api',

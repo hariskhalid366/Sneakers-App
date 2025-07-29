@@ -21,6 +21,7 @@ import GoogleSignin from './GoogleSignIn';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {useCreateUserAccountMutation} from '../ReduxStore/apiSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {hp, wp} from '../constants/Dimensions';
 
 const input = 'text-sm font-semibold tracking-wider ';
 
@@ -81,7 +82,7 @@ const RegisterScreen = ({navigation}) => {
         <View
           style={{
             backgroundColor: '#00000044',
-            height: height + 100,
+            height: hp(100) + 100,
             position: 'absolute',
             width: width,
             alignSelf: 'center',

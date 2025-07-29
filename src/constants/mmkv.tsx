@@ -1,4 +1,16 @@
 import {MMKV, useMMKVString} from 'react-native-mmkv';
+import {Buffer} from 'buffer';
+
+/**
+ * Convert a buffer object to a base64 string
+ * @param bufferObject - An object with a 'data' property containing an array of numbers
+ * @returns A base64 encoded string representation of the buffer
+ */
+
+export const imageBuffer = (bufferObject: {data: number[]}) => {
+  const buffer = Buffer.from(bufferObject?.data).toString('base64');
+  return `data:image/jpeg;base64,${buffer}`;
+};
 
 export const Storage = new MMKV({
   id: 'com.sneakers',

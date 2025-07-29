@@ -1,4 +1,5 @@
 {
   "name": "Sneakers",
-  "displayName": "Sneakers"
+  "displayName": "Sneakers",
+  "plugins": ["expo-web-browser"]
 }

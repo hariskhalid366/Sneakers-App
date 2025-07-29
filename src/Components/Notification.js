@@ -22,7 +22,7 @@ const Notification = React.forwardRef(({}, ref) => {
   const [toastType, setToastType] = React.useState('');
   const [toastText, setToastText] = React.useState('');
   const [toastImage, setToastImage] = React.useState('');
-  const TOP_VALUE = 30;
+  const TOP_VALUE = 40;
 
   useImperativeHandle(
     ref,
@@ -67,7 +67,7 @@ const Notification = React.forwardRef(({}, ref) => {
   return (
     <Animated.View
       style={animatedTopStyles}
-      className="self-center bg-white justify-between border-2 w-3/4 rounded-3xl p-4 border-primary flex-row items-center absolute z-50">
+      className="self-center bg-white justify-between border-2 w-3/4 rounded-3xl p-4 border-primary flex-row items-center absolute top-22 z-50">
       <View className="justify-start flex-row flex items-center gap-3">
         {toastImage && (
           <Image

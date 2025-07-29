@@ -1,4 +1,4 @@
-import {Image, Text, TouchableOpacity, View} from 'react-native';
+import {FlatList, Image, Text, TouchableOpacity, View} from 'react-native';
 import React from 'react';
 import {InputField} from '../Components';
 import {
@@ -6,39 +6,88 @@ import {
   MapIcon,
   PhoneIcon,
   UserIcon,
-  WalletIcon,
 } from 'react-native-heroicons/outline';
 import {theme} from '../constants/theme';
-import LongButton from '../Components/LongButton';
-import {wp} from '../constants/Dimensions';
+import {hp, wp} from '../constants/Dimensions';
+import {useQuery} from '@tanstack/react-query';
+import {getItem} from '../constants/mmkv';
+import {ScrollView} from 'react-native-gesture-handler';
+import showToast from '../Components/Toast';
+import {GET} from '../services/apiServices';
+import ScrollToRefresh from '../Components/Refresh';
+import ProfileMintCard from '../Components/ProfileMintCard';
+import {
+  ConnectButton,
+  TransactionButton,
+  useActiveAccount,
+} from 'thirdweb/react';
+
+import {inAppWallet, createWallet} from 'thirdweb/wallets';
+import {client} from '../constants/thirdweb';
+
+import {getContract} from 'thirdweb';
+import {sepolia} from 'thirdweb/chains';
+import {claimTo} from 'thirdweb/extensions/erc20';
 
 const Profile = () => {
   const [editable, setEditable] = React.useState(false);
-  // const connectWallet = async () => {
-  //   try {
-  //     await connect();
-  //   } catch (error) {
-  //     console.error('Failed to connect wallet:', error);
-  //   }
-  // };
 
-  // const imageData = Buffer.from(/* Your image data here */);
+  const wallets = [
+    inAppWallet({
+      auth: {
+        options: ['google', 'discord', 'email', 'x', 'telegram', 'passkey'],
+      },
+    }),
+    createWallet('io.metamask'),
+    createWallet('com.coinbase.wallet'),
+    createWallet('io.zerion.wallet'),
+    createWallet('com.binance.wallet'),
+    createWallet('com.okex.wallet'),
+    createWallet('com.bitget.web3'),
+    createWallet('com.trustwallet.app'),
+    createWallet('me.rainbow'),
+    createWallet('io.rabby'),
+  ];
 
-  // Convert the Buffer to a base64-encoded string
-  // const base64ImageData = imageData.toString('base64');
+  const userData = getItem('user');
 
-  // uri: `data:image/jpeg;base64,${base64ImageData}`,
+  const {data, isLoading, error, refetch} = useQuery({
+    queryKey: ['myCollection', userData?._id],
+    queryFn: () => GET(`/api/bid/mine/${userData?._id}`),
+    experimental_prefetchInRender: true,
+  });
+
+  const account = useActiveAccount();
+
+  if (error) {
+    showToast(error?.message || 'Something went wrong');
+  }
+
+  const tw_coin = getContract({
+    address: '0xACf072b740a23D48ECd302C9052fbeb3813b60a6',
+    chain: sepolia,
+    client: client,
+  });
+
+  const COINS = getItem('tokens') || 0;
 
   return (
-    <View className="flex-1 bg-background justify-center items-center">
-      <View className="h-2/3 items-center p-4 justify-center rounded-2xl bg-white w-11/12">
-        <TouchableOpacity className="p-4 bg-primary elevation-sm rounded-full absolute top-5 right-5">
-          <WalletIcon
-            color={theme.backgroundColor}
-            strokeWidth={2}
-            size={wp(5)}
+    <ScrollToRefresh onRefresh={refetch}>
+      <ScrollView
+        className="flex-1 bg-background px-6"
+        contentContainerStyle={{
+          justifyContent: 'center',
+          alignItems: 'center',
+          marginTop: hp(10),
+        }}>
+        <View style={{position: 'absolute', top: -40, right: 10}}>
+          <ConnectButton
+            className="p-4 bg-primary elevation-sm rounded-full absolute -top-10 -right-2"
+            client={client}
+            connectModal={{size: 'wide'}}
+            wallets={wallets}
           />
-        </TouchableOpacity>
+        </View>
         <Image
           source={require('../../assets/logo.png')}
           style={{width: 130, height: 130, borderRadius: 200}}
@@ -49,6 +98,7 @@ const Profile = () => {
           }
           editable={editable}
           placeholder={'Your name'}
+          value={userData?.username || ''}
         />
         <InputField
           prependChild={
@@ -60,6 +110,7 @@ const Profile = () => {
           }
           editable={editable}
           placeholder={'Your Email'}
+          value={userData?.email || ''}
         />
         <InputField
           prependChild={
@@ -67,6 +118,9 @@ const Profile = () => {
           }
           editable={editable}
           placeholder={'Your Phone'}
+          value={userData?.phonenumber || ''}
+          keyboardType={'phone-pad'}
+          autoComplete={'tel'}
         />
         <InputField
           prependChild={
@@ -75,14 +129,69 @@ const Profile = () => {
           editable={editable}
           placeholder={'Your Address'}
         />
-        <LongButton
-          title={'Edit Profile'}
-          backgroundColor={theme.primery}
-          color={'#fff'}
-          onPress={() => {}}
-        />
-      </View>
-    </View>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            width: '100%',
+          }}>
+          <Text className="text-base font-bold text-black">
+            Total Token Count
+          </Text>
+          <Text className="text-base font-bold text-black">{COINS}</Text>
+        </View>
+        {COINS > 0 && (
+          <TransactionButton
+            transaction={() =>
+              claimTo({
+                contract: tw_coin,
+                to: account?.address,
+                quantity: COINS.toString(),
+              })
+            }>
+            <Text className="text-base font-bold text-black">Claim Tokens</Text>
+          </TransactionButton>
+        )}
+
+        {/* <LongButton
+        title={'Edit Profile'}
+        backgroundColor={theme.primery}
+        color={'#fff'}
+        onPress={() => {}}
+      /> */}
+
+        {isLoading ? (
+          <Text>Loading...</Text>
+        ) : (
+          <>
+            <FlatList
+              ListHeaderComponent={() => (
+                <View className="bg-primary px-3 py-1.5 rounded-xl mt-3">
+                  <Text className="font-semibold text-white tracking-wide text-xl align-baseline">
+                    My Mints
+                  </Text>
+                </View>
+              )}
+              ListEmptyComponent={() => (
+                <Text className="text-base text-black self-center top-10">
+                  Not Found
+                </Text>
+              )}
+              style={{flexGrow: 1, width: '100%'}}
+              scrollEnabled={false}
+              legacyImplementation={true}
+              contentContainerStyle={{paddingBottom: hp(15)}}
+              data={data?.data}
+              numColumns={2}
+              renderItem={({index, item}) => (
+                <ProfileMintCard item={item} key={index} />
+              )}
+            />
+          </>
+        )}
+      </ScrollView>
+    </ScrollToRefresh>
   );
 };
 

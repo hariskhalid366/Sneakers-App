@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   ActivityIndicator,
   Dimensions,
@@ -5,8 +6,11 @@ import {
   ToastAndroid,
   View,
   TouchableOpacity,
+  Image,
+  Linking,
+  Keyboard,
+  StyleSheet,
 } from 'react-native';
-import React from 'react';
 import {
   HeaderComp,
   InputField,
@@ -14,11 +18,14 @@ import {
   Notification,
   RecoveryModal,
 } from '../Components';
+import * as ImagePicker from 'react-native-image-picker';
+
 import {
   ChevronLeftIcon,
   EnvelopeIcon,
   PhoneIcon,
   UserIcon,
+  MapPinIcon,
 } from 'react-native-heroicons/outline';
 import {theme} from '../constants/theme';
 import {ScrollView} from 'react-native-gesture-handler';
@@ -28,57 +35,156 @@ import {
 } from '../ReduxStore/apiSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useStripe} from '@stripe/stripe-react-native';
-import {RadioButton} from 'react-native-paper';
-import {MapPinIcon} from 'react-native-heroicons/solid';
+import {Button, RadioButton} from 'react-native-paper';
 import {useNotifications} from '../AsyncStorage/Notification';
+import {client} from '../constants/thirdweb';
+import {getItem} from '../constants/mmkv';
+import {wp} from '../constants/Dimensions';
 
-const {width, height} = Dimensions.get('window');
-const textStyles = 'justify-between items-center flex-row';
+// Reusable BuySection component with dynamic price
+function BuySection({price, productName, product}) {
+  return (
+    <View style={[styles.stepContainer, {borderColor: theme.borderColor}]}>
+      <Text style={{textAlign: 'center', fontWeight: '600'}}>
+        {productName}
+      </Text>
+      <View style={{flexDirection: 'row', flexWrap: 'wrap', gap: 8, flex: 1}}>
+        {product.map((products, index) => (
+          <View
+            key={index}
+            style={{
+              flex: 1,
+              width: product?.length > 0 ? '30%' : '100%',
+              height: product?.length > 0 ? wp(60) : wp(30),
+            }}>
+            <Image
+              source={{uri: products?.item?.image}}
+              style={styles.buyImage}
+            />
+          </View>
+        ))}
+      </View>
+      <Text style={{textAlign: 'center', fontWeight: '600'}}>
+        Price: ${price.toFixed(2)}
+      </Text>
+      <View style={{gap: 8, marginTop: 16}}>
+        <Button
+          onPress={async () => {
+            const url = await makeUrl(price);
+            const mmUrl = new URL(
+              `https://metamask.app.link/dapp/${url.toString()}`,
+            );
+            Linking.openURL(mmUrl.toString());
+          }}>
+          Pay with Metamask
+        </Button>
+        <Button
+          onPress={async () => {
+            const url = encodeURIComponent((await makeUrl(price)).toString());
+            const mmUrl = new URL(
+              `https://phantom.app/ul/browse/${url}?ref=${url}`,
+            );
+            Linking.openURL(mmUrl.toString());
+          }}>
+          Pay with Phantom
+        </Button>
+      </View>
+    </View>
+  );
+}
+
+async function makeUrl(price) {
+  const authToken = await AsyncStorage.getItem(
+    `walletToken-${client.clientId}`,
+  );
+  const url = new URL('https://thirdweb.com/pay');
+
+  url.searchParams.set('clientId', client.clientId);
+  url.searchParams.set('chainId', '8453');
+  url.searchParams.set(
+    'tokenAddress',
+    '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+  );
+  url.searchParams.set(
+    'recipientAddress',
+    '0x2247d5d238d0f9d37184d8332aE0289d1aD9991b',
+  );
+
+  const amount = Math.floor(price * 10 ** 6).toString();
+  url.searchParams.set('amount', amount);
+
+  url.searchParams.set('redirectUri', 'com.sneakers://');
+  url.searchParams.set('theme', 'light');
+  url.searchParams.set('name', 'thirdweb hoodie');
+  url.searchParams.set('preferredWallet', 'io.metamask');
+  url.searchParams.set(
+    'image',
+    'https://playground.thirdweb.com/drip-hoodie.png',
+  );
+
+  if (authToken) {
+    url.searchParams.set('authCookie', authToken);
+    url.searchParams.set('walletId', 'inApp');
+    url.searchParams.set('authProvider', 'google');
+  }
+
+  return url;
+}
+
+const styles = StyleSheet.create({
+  stepContainer: {
+    flex: 1,
+    alignItems: 'center',
+    flexDirection: 'column',
+    gap: 16,
+    marginBottom: 8,
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+  },
+  buyImage: {
+    width: '100%',
+    height: '100%',
+    overflow: 'hidden',
+    borderRadius: 10,
+  },
+});
 
 const CheckOut = ({navigation, route}) => {
   const products = route.params.products;
+
+  // console.log(products[0]?.item?.image);
+
+  // function extractProductImages(products) {
+  //   if (!Array.isArray(products)) return [];
+
+  //   return products
+  //     .map(product => product?.item?.image)
+  //     .filter(img => img !== undefined && img !== null);
+  // }
+
   const price = route.params.price;
   const Delivery = route.params.dPrice;
   const total = price + Delivery;
 
-  const [user, setUser] = React.useState([]);
+  const [images, setImages] = React.useState('');
+
   const [address, setAddress] = React.useState('');
   const [checked, setChecked] = React.useState('online');
   const [methodOfTransaction, setMethodOfTransaction] =
-    React.useState('Cradit Card');
+    React.useState('Credit Card');
 
   const {addNotification} = useNotifications();
-
-  React.useEffect(() => {
-    AsyncStorage.getItem('userAuth').then(items => {
-      const userInfo = JSON.parse(items);
-      setUser(userInfo.user);
-    });
-  }, []);
-
-  const [formData, setFormData] = React.useState({
-    name: '',
-    email: '',
-    address: '',
-    phone: '',
-  });
-
-  const handleChange = (field, value) => {
-    setFormData(prevFormData => ({
-      ...prevFormData,
-      [field]: value,
-    }));
-  };
-
   const [createOrder] = useCreateOrderMutation();
   const [createPaymentIntent, {isLoading}] = useCreatePaymentIntentMutation();
   const {initPaymentSheet, presentPaymentSheet} = useStripe();
+
+  const data = getItem('user');
 
   const handlePaymentIntent = async () => {
     const response = await createPaymentIntent({
       amount: Math.floor(total * 100),
     });
-    console.log(response);
     if (response.error) {
       ToastAndroid.showWithGravity(
         `Something went wrong \n ${response.error}`,
@@ -91,9 +197,7 @@ const CheckOut = ({navigation, route}) => {
     const initResponse = await initPaymentSheet({
       merchantDisplayName: 'Sneakers.co',
       paymentIntentClientSecret: response?.data?.paymentIntent,
-      defaultBillingDetails: {
-        address: 'Pakistan',
-      },
+      defaultBillingDetails: {address: 'Pakistan'},
     });
 
     if (initResponse.error) {
@@ -120,27 +224,26 @@ const CheckOut = ({navigation, route}) => {
   };
 
   const orderProduct = async () => {
-    try {
-      if (address.length > 10) {
+    if (address.length > 10) {
+      try {
         const order = await createOrder({
-          id: user?._id,
-          username: user?.username,
-          email: user?.email,
-          phoneNumber: user.phonenumber,
+          id: data?._id,
+          username: data?.username,
+          email: data?.email,
+          phoneNumber: data?.phonenumber,
           address: address,
           paymentMethod: methodOfTransaction,
           payment: total,
           product: products,
         });
         if (order.data.status) {
-          toastRef?.current?.show({type: 'noti', text: order.data.message});
-          ModalRef?.current?.present();
-          console.log(order.data);
           addNotification(order.data);
-
-          setTimeout(() => {
-            navigation.replace('MyCart');
-          }, 2000);
+          ToastAndroid.showWithGravity(
+            order.data.message,
+            ToastAndroid.SHORT,
+            ToastAndroid.CENTER,
+          );
+          navigation.replace('MyCart');
         } else {
           ToastAndroid.showWithGravity(
             'Something went wrong',
@@ -148,87 +251,101 @@ const CheckOut = ({navigation, route}) => {
             ToastAndroid.CENTER,
           );
         }
+      } catch (error) {
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
+    } else {
+      ToastAndroid.showWithGravity(
+        'Please enter a valid address',
+        ToastAndroid.SHORT,
+        ToastAndroid.CENTER,
+      );
     }
   };
 
-  const ModalRef = React.useRef(null);
-  const toastRef = React.useRef(null);
+  const textStyles = 'justify-between items-center flex-row';
+
+  const onPressContainer = () => {
+    Keyboard.dismiss();
+    ImagePicker.launchImageLibrary({
+      mediaType: 'photo',
+      includeBase64: false,
+      quality: 1,
+      selectionLimit: 1,
+      presentationStyle: 'formSheet',
+    })
+      .then(_data => {
+        if (_data?.didCancel) {
+          showToast('Process terminated');
+          return;
+        }
+        const uri = _data?.assets[0]?.uri;
+        setImages(uri);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
 
   return (
     <>
-      <Notification ref={toastRef} />
+      <Notification />
       {isLoading && <Loading />}
-      <RecoveryModal modelType={true} ref={ModalRef} />
-      <View className="flex-1 bg-background p-3">
+      <RecoveryModal modelType={true} />
+      <View
+        style={{flex: 1, backgroundColor: theme.backgroundColor, padding: 12}}>
         <HeaderComp
           title={'Checkout'}
-          inlineStyles={{
-            fontSize: 18,
-            fontWeight: '600',
-          }}
+          inlineStyles={{fontSize: 18, fontWeight: '600'}}
           prepend={
-            <View
+            <TouchableOpacity
               style={{
                 backgroundColor: theme.backgroundColor,
                 padding: 10,
                 elevation: 3,
                 borderRadius: 30,
-              }}>
-              <ChevronLeftIcon color={theme.darkColor} size={'18'} />
-            </View>
+              }}
+              onPress={() => navigation.goBack()}>
+              <ChevronLeftIcon color={theme.darkColor} size={18} />
+            </TouchableOpacity>
           }
-          apppend={<View className="w-10" />}
+          apppend={<View style={{width: 40}} />}
         />
-        <ScrollView className="flex-1 bg-white rounded-2xl">
-          <Text className="   p-5 font-bold text-black text-lg">
+        <ScrollView
+          style={{flex: 1, backgroundColor: 'white', borderRadius: 16}}>
+          <Text style={{padding: 20, fontWeight: 'bold', fontSize: 18}}>
             Contact Form
           </Text>
 
-          <View className="mx-4">
+          <View style={{marginHorizontal: 16}}>
             <InputField
               maxLength={40}
-              value={user?.username}
-              onChangeText={text => handleChange('name', text)}
+              value={data?.username}
               placeholder={'Your Name'}
-              keyboardType={'default'}
-              editable={false}
               prependChild={
-                <UserIcon
-                  color={theme.primeryDark}
-                  size={'22'}
-                  strokeWidth={2}
-                />
+                <UserIcon color={theme.primeryDark} size={22} strokeWidth={2} />
               }
             />
             <InputField
               maxLength={40}
-              value={user?.email}
-              onChangeText={text => handleChange('email', text)}
+              value={data?.email}
               placeholder={'Your Email'}
-              keyboardType={'default'}
-              editable={false}
               prependChild={
                 <EnvelopeIcon
                   color={theme.primeryDark}
-                  size={'22'}
+                  size={22}
                   strokeWidth={2}
                 />
               }
             />
             <InputField
               maxLength={40}
-              value={user.phonenumber}
-              onChangeText={text => handleChange('phone', text)}
+              value={data?.phonenumber}
               placeholder={'Your Phone Number'}
-              keyboardType={'default'}
-              editable={false}
               prependChild={
                 <PhoneIcon
                   color={theme.primeryDark}
-                  size={'22'}
+                  size={22}
                   strokeWidth={2}
                 />
               }
@@ -236,87 +353,98 @@ const CheckOut = ({navigation, route}) => {
             <InputField
               maxLength={40}
               value={address}
-              onChangeText={text => setAddress(text)}
+              onChangeText={setAddress}
               placeholder={'Your Proper Address'}
-              keyboardType={'default'}
               prependChild={
                 <MapPinIcon
                   color={theme.primeryDark}
-                  size={'22'}
+                  size={22}
                   strokeWidth={2}
                 />
               }
             />
           </View>
 
-          <Text className="   m-4 font-bold text-black text-base">
+          <Text style={{margin: 16, fontWeight: 'bold', fontSize: 16}}>
             Payment Method
           </Text>
-          <View className="items-center flex-row">
-            <RadioButton
-              value="online"
-              color={theme.primery}
-              status={checked === 'online' ? 'checked' : 'unchecked'}
+          {['online', 'cash', 'Wallet'].map(option => (
+            <TouchableOpacity
+              key={option}
               onPress={() => {
-                setChecked('online');
-                setMethodOfTransaction('Cradit Card');
+                setChecked(option);
+                setMethodOfTransaction(
+                  option === 'online'
+                    ? 'Credit Card'
+                    : option === 'cash'
+                    ? 'Cash on Delivery'
+                    : 'Wallet',
+                );
               }}
-            />
-            <Text className="   text-black text-sm font-bold">
-              Online Payment
-            </Text>
-          </View>
-          <View className="items-center flex-row">
-            <RadioButton
-              value="cash"
-              color={theme.primery}
-              status={checked === 'cash' ? 'checked' : 'unchecked'}
-              onPress={() => {
-                setChecked('cash');
-                setMethodOfTransaction('Cash on Delivery');
-              }}
-            />
-            <Text className="   text-black text-sm font-bold">
-              Cash on Delivery
-            </Text>
-          </View>
+              style={{flexDirection: 'row', alignItems: 'center'}}>
+              <RadioButton
+                value={option}
+                color={theme.primery}
+                status={checked === option ? 'checked' : 'unchecked'}
+                onPress={() => {
+                  setChecked(option);
+                  setMethodOfTransaction(
+                    option === 'online'
+                      ? 'Credit Card'
+                      : option === 'cash'
+                      ? 'Cash on Delivery'
+                      : 'Wallet',
+                  );
+                }}
+              />
+              <Text style={{fontWeight: 'bold'}}>
+                {option === 'online'
+                  ? 'Online Payment'
+                  : option === 'cash'
+                  ? 'Cash on Delivery'
+                  : 'Pay with Wallet'}
+              </Text>
+            </TouchableOpacity>
+          ))}
+
+          <BuySection
+            price={total}
+            productName={'Sneakers'}
+            product={products}
+            // image={'https://playground.thirdweb.com/drip-hoodie.png'}
+            // image={products[0]?.item?.image}
+          />
         </ScrollView>
       </View>
 
-      <View className="bg-white w-full">
-        <View className="p-4 gap-3">
-          <View className={textStyles}>
-            <Text className="   text-base font-normal text-gray-500">
-              SubTotal
-            </Text>
-            <Text className="   text-base font-semibold text-black">
-              $ {price}
-            </Text>
+      <View style={{backgroundColor: 'white', width: '100%'}}>
+        <View style={{padding: 16}}>
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+            <Text style={{color: 'gray'}}>SubTotal</Text>
+            <Text style={{fontWeight: 'bold'}}>${price}</Text>
           </View>
-          <View className={textStyles}>
-            <Text className="   text-base font-normal text-gray-500">
-              Delivery
-            </Text>
-            <Text className="   text-base font-semibold text-black">
-              $ {Delivery}
-            </Text>
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+            <Text style={{color: 'gray'}}>Delivery</Text>
+            <Text style={{fontWeight: 'bold'}}>${Delivery}</Text>
           </View>
-          <View className="border border-gray-500 border-dashed" />
-          <View className={textStyles}>
-            <Text className="   text-base font-normal text-gray-500">
-              Total
-            </Text>
-            <Text className="   text-base font-semibold text-black">
-              $ {total}
-            </Text>
+          <View
+            style={{
+              borderBottomWidth: 1,
+              borderColor: 'gray',
+              marginVertical: 8,
+            }}
+          />
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+            <Text style={{color: 'gray'}}>Total</Text>
+            <Text style={{fontWeight: 'bold'}}>${total}</Text>
           </View>
         </View>
         <TouchableOpacity
-          activeOpacity={0.5}
           onPress={() => {
             if (address.length > 10) {
-              if (checked === 'online') {
-                handlePaymentIntent();
+              if (checked === 'online') handlePaymentIntent();
+              else if (checked === 'Wallet') {
+                // integrate wallet payment logic here
               } else {
                 orderProduct();
               }
@@ -328,8 +456,15 @@ const CheckOut = ({navigation, route}) => {
               );
             }
           }}
-          className="m-4 rounded-2xl h-14  justify-center items-center bg-primary">
-          <Text className="   text-center text-white text-xl font-semibold">
+          style={{
+            margin: 16,
+            borderRadius: 16,
+            height: 56,
+            backgroundColor: theme.primery,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <Text style={{color: 'white', fontSize: 18, fontWeight: '600'}}>
             Checkout
           </Text>
         </TouchableOpacity>

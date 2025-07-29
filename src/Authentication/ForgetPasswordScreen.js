@@ -3,7 +3,7 @@ import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {ChevronLeftIcon, EnvelopeIcon} from 'react-native-heroicons/outline';
 
 import {theme} from '../constants/theme';
-import {InputField} from '../Components';
+import {InputField, Loading} from '../Components';
 import LongButton from '../Components/LongButton';
 import showToast from '../Components/Toast'; // <-- use your custom toast
 import {wp} from '../constants/Dimensions';
@@ -35,9 +35,14 @@ const ForgetPasswordScreen = ({navigation}) => {
     },
   });
 
+  if (requestReset.error) {
+    showToast(requestReset.error?.message || 'Something went wrong');
+  }
+
   return (
     <>
-      <View className="flex-1 p-5 bg-white">
+      {requestReset?.isPending && <Loading />}
+      <View className="flex-1 p-5 pt-11 bg-white">
         <TouchableOpacity
           onPress={() => navigation.pop()}
           style={styles.backButton}

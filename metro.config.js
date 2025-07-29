@@ -15,7 +15,14 @@ const defaultConfig = getDefaultConfig(__dirname);
 //     assetExts: assetExts.filter(ext => ext !== 'svg'),
 //     sourceExts: [...sourceExts, 'svg'],
 //   },
+
 // };
+defaultConfig.resolver.unstable_enablePackageExports = true;
+defaultConfig.resolver.unstable_conditionNames = [
+  'react-native',
+  'browser',
+  'require',
+];
 
 // Merge base config and custom tweaks
 const mergedConfig = mergeConfig(defaultConfig);

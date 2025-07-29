@@ -16,6 +16,7 @@ import {
   PaintBrushIcon,
   RectangleStackIcon,
   HeartIcon,
+  BuildingStorefrontIcon,
 } from 'react-native-heroicons/outline';
 
 const Drawer = () => {
@@ -33,8 +34,8 @@ const Drawer = () => {
         return ShoppingBagIcon;
       case 'Notifications':
         return BellIcon;
-      case 'Setting':
-        return Cog6ToothIcon;
+      case 'NFTs':
+        return BuildingStorefrontIcon;
       default:
         return null;
     }
@@ -50,9 +51,6 @@ const Drawer = () => {
         headerShown: false,
         drawerStyle: {
           backgroundColor: '#fff',
-          height: hp(90),
-          top: hp(2.5),
-          // left: wp(5),
           width: wp(65),
           borderRadius: 20,
           overflow: 'hidden',
@@ -63,7 +61,7 @@ const Drawer = () => {
           backgroundColor: '#00000008',
           width: '100%',
         },
-        drawerStatusBarAnimation: 'none',
+        drawerStatusBarAnimation: 'fade',
         drawerLabelStyle: {
           color: '#000',
           fontSize: wp(3.2),
@@ -85,10 +83,11 @@ const Drawer = () => {
         component={CreateDesign}
         options={{title: 'Creator Center'}}
       />
+      <_Drawer.Screen name="NFTs" component={Settings} />
+
       <_Drawer.Screen name="Favourite" component={Favourite} />
       <_Drawer.Screen name="Orders" component={OrderedProduct} />
       <_Drawer.Screen name="Notifications" component={Notification} />
-      <_Drawer.Screen name="Setting" component={Settings} />
     </_Drawer.Navigator>
   );
 };

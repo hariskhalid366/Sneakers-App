@@ -1,5 +1,4 @@
 import React, {useEffect, useMemo, useReducer, useRef} from 'react';
-import {SafeAreaView} from 'react-native-safe-area-context';
 import {NavigationContainer, DefaultTheme} from '@react-navigation/native';
 import BootSplash from 'react-native-bootsplash';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
@@ -24,6 +23,12 @@ import {getItem, removeItem, setItem} from '../constants/mmkv';
 import showToast from '../Components/Toast';
 import ChatBotModal from '../Components/((modal))/ChatBotModal';
 import SetNewPassword from '../Authentication/SetNewPassword';
+import {Loading} from '../Components';
+import PublishDesign from '../Screens/Design/PublishDesign';
+import BidProductScreen from '../Screens/BidProductScreen';
+import {Text, View} from 'react-native';
+import UserPublicProfile from '../Screens/UserPublicProfile';
+import NFTPage from '../Screens/NFTPage';
 
 const Stack = createNativeStackNavigator();
 export const AuthContext = React.createContext();
@@ -93,81 +98,97 @@ const Route = () => {
 
   // ⚠️ Don't render until the token is checked
   if (state.isLoading) {
-    return null;
+    return <Loading />;
   }
 
   return (
     <AuthContext.Provider value={authContext}>
-      <SafeAreaView style={{flex: 1}}>
-        <NavigationContainer
-          ref={navigationRef}
-          onReady={() => BootSplash.hide({fade: true})}
-          theme={{
-            ...DefaultTheme,
-            colors: {
-              primary: '#fff',
-              background: '#fff',
-              card: '#fff',
-              text: '#000',
-              border: '#fff',
-              notification: '#000',
-            },
+      <NavigationContainer
+        ref={navigationRef}
+        onReady={() => BootSplash.hide({fade: true})}
+        theme={{
+          ...DefaultTheme,
+          colors: {
+            primary: '#F7F7F9',
+            background: '#F7F7F9',
+            card: '#F7F7F9',
+            text: '#000',
+            border: '#F7F7F9',
+            notification: '#000',
+          },
+        }}>
+        <Stack.Navigator
+          initialRouteName={
+            state.userToken ? 'BottomNavigation' : 'OnBoardScreen'
+          }
+          // screenLayout={() => (
+          //   <View
+          //     style={{
+          //       flex: 1,
+          //       height: 20,
+          //       backgroundColor: theme.primery,
+          //     }}>
+          //     <Text>Hello</Text>
+          //   </View>
+          // )}
+          screenOptions={{
+            headerShown: false,
+            animation: 'ios_from_right',
+            statusBarStyle: 'dark',
+            orientation: 'portrait',
+            statusBarTranslucent: true,
+            gestureDirection: 'horizontal',
           }}>
-          <Stack.Navigator
-            initialRouteName={
-              state.userToken ? 'BottomNavigation' : 'OnBoardScreen'
-            }
-            screenOptions={{
-              headerShown: false,
-              animation: 'slide_from_right',
-              statusBarStyle: 'dark',
-              orientation: 'portrait',
-              statusBarBackgroundColor: theme.backgroundColor,
-              gestureDirection: 'horizontal',
-            }}>
-            {!state.userToken ? (
-              <>
-                <Stack.Screen
-                  name="OnBoardScreen"
-                  component={OnBoardScreen}
-                  options={{
-                    statusBarTranslucent: true,
-                    statusBarBackgroundColor: theme.backdrop,
-                  }}
-                />
-                <Stack.Screen name="Login" component={LoginScreen} />
-                <Stack.Screen name="Register" component={RegisterScreen} />
-                <Stack.Screen name="OtpScreen" component={OtpScreen} />
-                <Stack.Screen name="Forget" component={ForgetPasswordScreen} />
-                <Stack.Screen name="NewPassword" component={SetNewPassword} />
-              </>
-            ) : (
-              <>
-                <Stack.Screen name="BottomNavigation" component={Drawer} />
-                <Stack.Screen name="MyCart" component={MyCart} />
-                <Stack.Screen name="Checkout" component={CheckOut} />
-                <Stack.Screen name="All Products" component={AllProducts} />
-                <Stack.Screen name="Search" component={SearchScreen} />
-                <Stack.Screen name="Product" component={ProductScreen} />
-                <Stack.Screen
-                  name="ChatBot"
-                  component={ChatBotModal}
-                  options={{
-                    gestureEnabled: true,
-                    gestureDirection: 'horizontal',
-                    presentation: 'fullScreenModal',
-                    // animation:"slide_from_bottom"
-                  }}
-                />
-                <Stack.Screen
-                  name="SearchOrdredProduct"
-                  component={OrderedProduct}
-                />
-              </>
-            )}
-          </Stack.Navigator>
-        </NavigationContainer>
-      </SafeAreaView>
+          {!state.userToken ? (
+            <>
+              <Stack.Screen
+                name="OnBoardScreen"
+                component={OnBoardScreen}
+                options={{
+                  statusBarTranslucent: true,
+                  statusBarStyle: 'light',
+                  statusBarBackgroundColor: theme.backdrop,
+                }}
+              />
+              <Stack.Screen name="Login" component={LoginScreen} />
+              <Stack.Screen name="Register" component={RegisterScreen} />
+              <Stack.Screen name="OtpScreen" component={OtpScreen} />
+              <Stack.Screen name="Forget" component={ForgetPasswordScreen} />
+              <Stack.Screen name="NewPassword" component={SetNewPassword} />
+            </>
+          ) : (
+            <>
+              <Stack.Screen name="BottomNavigation" component={Drawer} />
+              <Stack.Screen name="UploadDesign" component={PublishDesign} />
+              <Stack.Screen name="MyCart" component={MyCart} />
+              <Stack.Screen name="Checkout" component={CheckOut} />
+              <Stack.Screen name="All Products" component={AllProducts} />
+              <Stack.Screen name="Search" component={SearchScreen} />
+              <Stack.Screen name="Product" component={ProductScreen} />
+              <Stack.Screen name="NftDetails" component={NFTPage} />
+              <Stack.Screen
+                name="PublicProfile"
+                component={UserPublicProfile}
+              />
+              <Stack.Screen
+                name="ChatBot"
+                component={ChatBotModal}
+                options={{
+                  gestureEnabled: true,
+                  gestureDirection: 'horizontal',
+                  presentation: 'fullScreenModal',
+                  animation: 'slide_from_bottom',
+                }}
+              />
+              <Stack.Screen
+                name="SearchOrdredProduct"
+                component={OrderedProduct}
+              />
+              <Stack.Screen name="BidProduct" component={BidProductScreen} />
+            </>
+          )}
+        </Stack.Navigator>
+      </NavigationContainer>
     </AuthContext.Provider>
   );
 };

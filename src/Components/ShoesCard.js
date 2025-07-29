@@ -9,6 +9,7 @@ import {productSlice} from '../ReduxStore/productSlice';
 import {useCart} from '../AsyncStorage/cartStorage';
 import {useFavorites} from '../AsyncStorage/FavStorage';
 import Animated from 'react-native-reanimated';
+import {wp, hp} from '../constants/Dimensions';
 
 const {width} = Dimensions.get('screen');
 
@@ -20,14 +21,14 @@ const ShoesCard = ({item, favourite, setRef}) => {
 
   React.useEffect(() => {
     const isItemFavorite = favorites.some(
-      favoriteItem => favoriteItem.id === item.id,
+      favoriteItem => favoriteItem._id === item._id,
     );
     setIsFavorite(isItemFavorite);
   }, [favorites, item]);
 
   const handleToggleFavorite = () => {
     if (isFavorite) {
-      removeFromFavorites(item.id);
+      removeFromFavorites(item._id);
     } else {
       setRef?.current?.show({type: 'fav', text: item.name, image: item.image});
       addToFavorites(item);
@@ -75,13 +76,13 @@ const ShoesCard = ({item, favourite, setRef}) => {
             className=" justify-center flex items-center round p-1 py-2">
             {item?.image || item?.imageURL ? (
               <Animated.Image
-                sharedTransitionTag="image"
+                sharedTransitionTag="PRODUCT_IMAGE"
                 style={{
-                  width: 150,
+                  width: wp(30),
                   backgroundColor: '#EBEEF0',
                   borderRadius: 20,
                   resizeMode: 'cover',
-                  height: 115,
+                  height: hp(15),
                 }}
                 source={{uri: item?.image || item?.imageURL}}
               />
@@ -93,13 +94,13 @@ const ShoesCard = ({item, favourite, setRef}) => {
           </TouchableOpacity>
         </View>
         <Text
-          style={{fontSize: 12, fontWeight: '600'}}
+          style={{fontSize: wp(3), fontWeight: '600'}}
           className="text-primary  font-medium">
           {item?.brand}
         </Text>
         <Text
           numberOfLines={1}
-          style={{fontSize: 13, fontWeight: '400'}}
+          style={{fontSize: wp(3.2), fontWeight: '400'}}
           className="text-black font-normal tracking-wide">
           {item?.name}
         </Text>

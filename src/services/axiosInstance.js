@@ -3,7 +3,7 @@ import Config from 'react-native-config';
 import {getItem} from '../constants/mmkv';
 
 const axiosInstance = axios.create({
-  baseURL: 'http://192.168.0.124:5003',
+  baseURL: 'https://skeaks.vercel.app',
   headers: {
     'Content-Type': 'application/json',
   },

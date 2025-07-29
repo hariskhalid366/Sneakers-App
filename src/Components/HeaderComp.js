@@ -8,14 +8,16 @@ const HeaderComp = ({
   containerStyles,
   prepend,
   onPress,
+  touchableStyle,
   inlineStyles,
 }) => {
   const navigation = useNavigation();
   return (
     <View
-      className="justify-between mb-4 items-center flex-row"
+      className="justify-between mb-4 pt-11 items-center flex-row"
       style={{...containerStyles}}>
       <TouchableOpacity
+        style={touchableStyle}
         onPress={() => {
           if (onPress) {
             onPress();
@@ -25,13 +27,11 @@ const HeaderComp = ({
         }}>
         {prepend}
       </TouchableOpacity>
-      <View>
-        <Text
-          style={{...inlineStyles}}
-          className="text-3xl text-center font-bold tracking-wide ">
-          {title}
-        </Text>
-      </View>
+      <Text
+        style={{...inlineStyles}}
+        className="text-2xl text-center font-bold tracking-wide  ">
+        {title}
+      </Text>
       {apppend}
     </View>
   );

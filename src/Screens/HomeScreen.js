@@ -1,3 +1,4 @@
+import React, {useEffect, useRef} from 'react';
 import {
   Pressable,
   Text,
@@ -5,55 +6,61 @@ import {
   TouchableOpacity,
   Image,
   StyleSheet,
+  ScrollView,
 } from 'react-native';
-import React, {useRef} from 'react';
 import {
   AdjustmentsHorizontalIcon,
   MagnifyingGlassIcon,
   TruckIcon,
 } from 'react-native-heroicons/outline';
+import {FlatList} from 'react-native-gesture-handler';
+import {useSelector} from 'react-redux';
+import {DrawerActions} from '@react-navigation/native';
+import {AnimatedFAB} from 'react-native-paper';
+import {hp, wp} from '../constants/Dimensions';
 import {theme} from '../constants/theme';
+import Nfts from '../constants/nftData.json';
+import {useQuery} from '@tanstack/react-query';
+import {GET} from '../services/apiServices';
 import {
   DiscountBanners,
   HeaderComp,
   ModalMenu,
   ShoesCard,
   Notification,
+  Loading,
 } from '../Components';
-import {FlatList, ScrollView} from 'react-native-gesture-handler';
-import {ShoesList} from '../constants/shoelist';
-import data from '../constants/data.json';
-import {useSelector} from 'react-redux';
 import LottieView from 'lottie-react-native';
-import {DrawerActions} from '@react-navigation/native';
-import {AnimatedFAB} from 'react-native-paper';
-import {hp, wp} from '../constants/Dimensions';
-import ChatBotModal from '../Components/((modal))/ChatBotModal';
+// import LottieView from 'lottie-react-native'; // comment if using web
 
 const HomeScreen = ({navigation}) => {
-  React.useEffect(() => {
-    if (data?.length > 0) {
-      setLoading(false);
-    }
-    setTimeout(() => {
-      setIsExtended(true);
-    }, 2000);
-  }, []);
+  const {data, isLoading, error} = useQuery({
+    queryKey: ['homeScreen'],
+    experimental_prefetchInRender: true,
+    queryFn: () => GET('/api/products/data'),
+  });
 
-  const [isExtended, setIsExtended] = React.useState(false);
+  const [isExtended, setIsExtended] = React.useState(true);
   const [isVisible, setIsVisible] = React.useState(true);
   const [selected, setSelected] = React.useState('All Shoes');
-  const [Loading, setLoading] = React.useState(true);
+  const [isAppLoading, setIsAppLoading] = React.useState(true); // renamed to avoid conflict
   const [visible, setVisible] = React.useState(false);
-  const product = useSelector(state => state?.products?.product);
-  const popular = useSelector(state => state?.popular?.product);
+
+  // const product = useSelector(state => state?.products?.product);
+  // const popular = useSelector(state => state?.popular?.product);
+
+  const bottomSheetRef = useRef(null);
+  const toastRef = useRef();
 
   const handleFilterPress = () => {
     setVisible(!visible);
   };
-  const bottomSheetRef = useRef(null);
 
-  const toastRef = useRef();
+  useEffect(() => {
+    if (data) {
+      setIsAppLoading(false);
+    }
+  }, [data]);
 
   const onScroll = ({nativeEvent}) => {
     setVisible(false);
@@ -61,22 +68,17 @@ const HomeScreen = ({navigation}) => {
       Math.floor(nativeEvent?.contentOffset?.y) ?? 0;
 
     setIsExtended(currentScrollPosition <= 0);
-    if (currentScrollPosition <= 150) {
-      setIsVisible(true);
-    }
-    if (currentScrollPosition > 300) {
-      setIsVisible(false);
-    }
+    setIsVisible(currentScrollPosition <= 150);
   };
 
   return (
     <>
+      {isLoading && <Loading />}
       <Notification ref={toastRef} />
-      {/* <ChatBotModal ref={bottomSheetRef} /> */}
 
       <ModalMenu setVisible={setVisible} visible={visible} />
       <AnimatedFAB
-        icon={({}) => (
+        icon={() => (
           <Image
             source={require('../../assets/chat.png')}
             style={{width: wp(15), height: wp(15), tintColor: '#fff'}}
@@ -90,165 +92,144 @@ const HomeScreen = ({navigation}) => {
         color="#fff"
         visible={isVisible}
         animateFrom={'right'}
-        style={[styles.fabStyle]}
+        style={styles.fabStyle}
       />
+
       <ScrollView
         onScroll={onScroll}
         scrollEventThrottle={20}
-        className="flex p-5">
+        style={{padding: 20}}>
         <HeaderComp
           title={'Explore'}
           apppend={
             <TouchableOpacity
-              onPress={() => {
-                navigation.push('SearchOrdredProduct');
-              }}
-              style={{
-                backgroundColor: theme.backgroundColor,
-                padding: 10,
-                elevation: 3,
-                borderRadius: 30,
-              }}>
-              <TruckIcon color={theme.darkColor} size={'18'} />
+              onPress={() => navigation.push('SearchOrdredProduct')}
+              style={styles.iconButton}>
+              <TruckIcon color={theme.darkColor} size={18} />
             </TouchableOpacity>
           }
           prepend={
             <TouchableOpacity
-              onPress={() => {
-                navigation.dispatch(DrawerActions.toggleDrawer());
-              }}>
+              onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}>
               <Image
-                className="w-6 h-6"
+                style={{width: 24, height: 24}}
                 source={require('../../assets/barIcon.png')}
               />
             </TouchableOpacity>
           }
         />
-        <View className="justify-between items-center flex-row">
+
+        <View style={styles.searchContainer}>
           <Pressable
-            onPress={() => {
-              navigation.navigate('Search');
-            }}
-            className="items-center flex-row bg-white flex-1 p-3 rounded-xl mr-2">
+            onPress={() => navigation.navigate('Search')}
+            style={styles.searchBox}>
             <MagnifyingGlassIcon
               strokeWidth={2}
-              size={'25'}
+              size={25}
               color={theme.secondaryDark}
             />
-            <Text className="   text-sm font-semibold text-gray-500 tracking-wide mx-3">
-              Looking For Shoes
-            </Text>
+            <Text style={styles.searchText}>Looking For Shoes</Text>
           </Pressable>
           <TouchableOpacity
-            onPress={() => {
-              handleFilterPress();
-            }}
-            style={{
-              backgroundColor: theme.primery,
-              padding: 10,
-              borderRadius: 30,
-            }}>
+            onPress={handleFilterPress}
+            style={styles.filterButton}>
             <AdjustmentsHorizontalIcon
               color={theme.backgroundColor}
-              size={'28'}
+              size={28}
             />
           </TouchableOpacity>
         </View>
-        <View className="my-3.5">
-          <Text className="   text-xl font-semibold tracking-wide">
-            Select Category
-          </Text>
+
+        <Text style={styles.sectionTitle}>Select Category</Text>
+        <FlatList
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          data={data?.data}
+          keyExtractor={item => item?._id}
+          renderItem={({item}) => (
+            <TouchableOpacity
+              onPress={() => setSelected(item?.name)}
+              style={[
+                styles.categoryButton,
+                selected === item?.name && styles.categoryButtonActive,
+              ]}>
+              <Text
+                style={[
+                  styles.categoryText,
+                  selected === item?.name && styles.categoryTextActive,
+                ]}>
+                {item?.name}
+              </Text>
+            </TouchableOpacity>
+          )}
+        />
+
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Popular Shoes</Text>
+          <TouchableOpacity activeOpacity={0.4}>
+            <Text style={styles.seeAllText}>See all</Text>
+          </TouchableOpacity>
+        </View>
+
+        {isAppLoading ? (
+          <LottieView
+            source={require('../../assets/lottieAnimation/animation.json')}
+            style={{width: 25, height: 25, alignSelf: 'center'}}
+            autoPlay
+            loop
+          />
+        ) : (
           <FlatList
             horizontal
-            backfaceVisibility={'hidden'}
-            legacyImplementation={true}
             showsHorizontalScrollIndicator={false}
-            data={ShoesList}
-            renderItem={({item, index}) => (
-              <TouchableOpacity
-                onPress={() => {
-                  setSelected(item.name);
-                }}
-                className={
-                  selected === item.name
-                    ? 'px-6 py-3 my-4 rounded-lg  mx-2 bg-primary '
-                    : 'px-6 py-3 my-4 rounded-lg bg-white mx-2'
-                }
-                style={{borderWidth: 1, borderColor: theme.primery}}
-                key={item.id}>
-                <Text
-                  className={
-                    selected === item.name
-                      ? 'text-white text-sm font-semibold'
-                      : 'text-gray-500 text-sm font-medium'
-                  }>
-                  {item.name}
-                </Text>
-              </TouchableOpacity>
-            )}
+            data={data?.data}
+            keyExtractor={item => item?._id}
+            renderItem={({item}) => <ShoesCard item={item} setRef={toastRef} />}
           />
-          <View className="mx-2 flex-row justify-between items-center">
-            <Text className="text-lg font-medium">Popular Shoes</Text>
-            <TouchableOpacity activeOpacity={0.4}>
-              <Text className="   text-sm text-primary font-bold">See all</Text>
-            </TouchableOpacity>
-          </View>
-          {Loading ? (
-            <View className="flex items-center m-6 justify-center">
-              <LottieView
-                source={require('../../assets/lottieAnimation/animation.json')}
-                style={{width: 25, height: 25}}
-                autoPlay
-                loop
-              />
-            </View>
-          ) : (
-            <FlatList
-              horizontal
-              renderToHardwareTextureAndroid={true}
-              legacyImplementation={true}
-              showsHorizontalScrollIndicator={false}
-              data={popular.filter(
-                item => selected === 'All Shoes' || item.category === selected,
-              )}
-              renderItem={({item}) => (
-                <ShoesCard item={item} setRef={toastRef} />
-              )}
-              ListHeaderComponent={() => {
-                if (Loading) {
-                  return (
-                    <View className="flex items-center m-6 justify-center">
-                      <LottieView
-                        source={require('../../assets/lottieAnimation/animation.json')}
-                        style={{width: 25, height: 25}}
-                        autoPlay
-                        loop
-                      />
-                    </View>
-                  );
-                }
-                return null;
-              }}
-            />
-          )}
-          <DiscountBanners />
-          <View className="mx-2 my-1 flex-row justify-between items-center">
-            <Text className="   text-lg  font-medium">New Arrivals</Text>
-            <TouchableOpacity
-              activeOpacity={0.4}
-              onPress={() => {
-                navigation.navigate('All Products');
-              }}>
-              <Text className="   text-sm text-primary font-bold">See all</Text>
-            </TouchableOpacity>
-          </View>
+        )}
+
+        <DiscountBanners />
+
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>New NFTs</Text>
+          <TouchableOpacity
+            activeOpacity={0.4}
+            onPress={() => navigation.navigate('NFTs')}>
+            <Text style={styles.seeAllText}>See all</Text>
+          </TouchableOpacity>
         </View>
+
+        <ScrollView contentContainerStyle={styles.container}>
+          {Nfts.map((nft, index) => (
+            <TouchableOpacity key={index} style={styles.card}>
+              <Image source={nftImages[nft?.image]} style={styles.image} />
+              <View style={styles.textContainer}>
+                <Text style={styles.title}>{nft?.name}</Text>
+                <Text style={styles.price}>{nft?.price}</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+          <TouchableOpacity
+            onPress={() => navigation.navigate('NFTs')}
+            style={styles.card}>
+            <Text>View All</Text>
+          </TouchableOpacity>
+        </ScrollView>
+
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>New Arrivals</Text>
+          <TouchableOpacity
+            activeOpacity={0.4}
+            onPress={() => navigation.navigate('All Products')}>
+            <Text style={styles.seeAllText}>See all</Text>
+          </TouchableOpacity>
+        </View>
+
         <FlatList
-          legacyImplementation={true}
           scrollEnabled={false}
-          contentContainerStyle={{paddingBottom: 40}}
-          data={product}
+          data={data?.data}
           numColumns={2}
+          keyExtractor={item => item?._id}
           renderItem={({item, index}) => (
             <ShoesCard
               item={item}
@@ -258,13 +239,13 @@ const HomeScreen = ({navigation}) => {
               setRef={toastRef}
             />
           )}
+          contentContainerStyle={{paddingBottom: 40}}
         />
       </ScrollView>
     </>
   );
 };
 
-export default HomeScreen;
 const styles = StyleSheet.create({
   fabStyle: {
     position: 'absolute',
@@ -273,4 +254,111 @@ const styles = StyleSheet.create({
     zIndex: 300,
     backgroundColor: theme.primery,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  iconButton: {
+    backgroundColor: theme.backgroundColor,
+    padding: 10,
+    elevation: 3,
+    borderRadius: 30,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  searchBox: {
+    flex: 1,
+    flexDirection: 'row',
+    backgroundColor: 'white',
+    padding: 12,
+    borderRadius: 10,
+    marginRight: 10,
+    alignItems: 'center',
+  },
+  searchText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: 'gray',
+    marginLeft: 10,
+  },
+  filterButton: {
+    backgroundColor: theme.primery,
+    padding: 10,
+    borderRadius: 30,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginVertical: 10,
+  },
+  categoryButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderColor: theme.primery,
+    marginHorizontal: 5,
+  },
+  categoryButtonActive: {
+    backgroundColor: theme.primery,
+  },
+  categoryText: {
+    fontSize: 14,
+    color: 'gray',
+    fontWeight: '500',
+  },
+  categoryTextActive: {
+    color: 'white',
+    fontWeight: '600',
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  seeAllText: {
+    fontSize: 14,
+    color: theme.primery,
+    fontWeight: '700',
+  },
+  container: {
+    gap: 10,
+    padding: 16,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  card: {
+    alignItems: 'center',
+    width: wp(33.3),
+    backgroundColor: '#FFF',
+    borderRadius: 14,
+    width: wp(44),
+    elevation: 2,
+  },
+  image: {
+    width: wp(33.3),
+    height: wp(50.3),
+    resizeMode: 'contain',
+  },
+  textContainer: {
+    flex: 1,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  price: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 4,
+  },
 });
+
+export default HomeScreen;

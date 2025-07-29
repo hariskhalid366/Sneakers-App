@@ -1,0 +1,114 @@
+[
+  {
+    "name": "AstroKicks_Prime",
+    "price": "1.2 ETH",
+    "description": "AstroKicks Prime exemplifies the fusion of interstellar aesthetics with cutting-edge virtual fashion. These sneakers radiate cosmic energy with their radiant nebula palette, perfect for trailblazing digital explorers.",
+    "symbol": "AKP",
+    "image": "AstroKicks_Prime.png"
+  },
+  {
+    "name": "BlazeWarp_Titans",
+    "price": "0.8 ETH",
+    "description": "BlazeWarp Titans channel the primal essence of ancient legends with a modern twist. Its molten design captures the power of a collapsing star, engineered for digital warriors across the metaverse.",
+    "symbol": "BWT",
+    "image": "BlazeWarp_Titans.png"
+  },
+  {
+    "name": "FalconX",
+    "price": "2.5 ETH",
+    "description": "FalconX is built for speed, agility, and aerodynamic supremacy. With sleek contours and neon velocity streaks, it's a tribute to the elite who dare to dominate both real and virtual terrains.",
+    "symbol": "FX",
+    "image": "FalconX.png"
+  },
+  {
+    "name": "Frostbyte_Vortex",
+    "price": "1.9 ETH",
+    "description": "Frostbyte Vortex manifests glacial energy in motion, swirling with the frozen momentum of a digital blizzard. It is an artifact of power, engineered for the cold-hearted conquerors of cyberspace.",
+    "symbol": "FV",
+    "image": "Frostbyte_Vortex.png"
+  },
+  {
+    "name": "Frostbyte_Vortex1",
+    "price": "1.95 ETH",
+    "description": "An alternate dimension of the Frostbyte saga, Vortex1 expands on the icy lineage with sharper detail and crystalized elegance. It represents the ultimate refinement in digital frost design.",
+    "symbol": "FV1",
+    "image": "Frostbyte_Vortex1.png"
+  },
+  {
+    "name": "HypeBeast_Mirage",
+    "price": "3.2 ETH",
+    "description": "HypeBeast Mirage redefines urban heat in virtual footwear culture. Bursting with hyperreal colors and motion graphics, it evokes the mirage of hype, blending fantasy with street dominance.",
+    "symbol": "HBM",
+    "image": "HypeBeast_Mirage.png"
+  },
+  {
+    "name": "Lunar_ThunderClap",
+    "price": "2.0 ETH",
+    "description": "Lunar ThunderClap resonates with celestial thunder, crafted from moon-sourced inspiration and wrapped in a storm-forged shell. Ideal for galactic guardians who walk among stars.",
+    "symbol": "LTC",
+    "image": "Lunar_ThunderClap.png"
+  },
+  {
+    "name": "Midnight",
+    "price": "1.0 ETH",
+    "description": "Midnight is a symbol of stealth and style, a core classic adorned in starlit shades. This design speaks to silent precision, favored by digital shadows and noir vigilantes alike.",
+    "symbol": "MDN",
+    "image": "Midnight.png"
+  },
+  {
+    "name": "Midnight_Riot",
+    "price": "1.4 ETH",
+    "description": "Midnight Riot blends rebellion and elegance. Its high-contrast palette and kinetic lines express the chaos of city nights while maintaining calculated elegance in the blockchain battlefield.",
+    "symbol": "MDR",
+    "image": "Midnight_Riot.png"
+  },
+  {
+    "name": "Midnight_Riot_Boost",
+    "price": "1.6 ETH",
+    "description": "A high-performance evolution of its predecessor, Midnight Riot Boost combines agility and energy return mechanics. Every step channels rebellion, powered by metaversal torque.",
+    "symbol": "MRB",
+    "image": "Midnight_Riot_Boost.png"
+  },
+  {
+    "name": "Mystic_Orbitons",
+    "price": "2.7 ETH",
+    "description": "Mystic Orbitons encapsulate astral mysteries, with orbiting glyphs and chromatic anomalies. They are rare relics from celestial archives, worn only by interdimensional collectors.",
+    "symbol": "MOB",
+    "image": "Mystic_Orbitons.png"
+  },
+  {
+    "name": "Phantom_X",
+    "price": "1.3 ETH",
+    "description": "Phantom X materializes from data fog, stealthily engineered for disruption. Its ghostly form and spectral contour offer elite evasion to its digital owner in all realities.",
+    "symbol": "PX",
+    "image": "Phantom_X.png"
+  },
+  {
+    "name": "Quantum_Groove",
+    "price": "2.2 ETH",
+    "description": "Quantum Groove pulses with frequency-shifting designs inspired by string theory. Each wave and color shift echoes alternate dimensions locked into digital resonance.",
+    "symbol": "QG",
+    "image": "Quantum_Groove.png"
+  },
+  {
+    "name": "Savage_Prism_Blaze",
+    "price": "3.0 ETH",
+    "description": "Savage Prism Blaze erupts with a spectrum of chaos. Wielding elemental fire and refracted light, this design is for those who seek to conquer with brilliance and brutality.",
+    "symbol": "SPB",
+    "image": "Savage_Prism_Blaze.png"
+  },
+  {
+    "name": "TitanRush_Flux",
+    "price": "2.9 ETH",
+    "description": "TitanRush Flux surges with raw kinetic energy. Its high-voltage visual identity is calibrated for titans racing through chronospatial corridors of the blockchain universe.",
+    "symbol": "TRF",
+    "image": "TitanRush_Flux.png"
+  },
+  {
+    "name": "WarpRunner_Elites",
+    "price": "1.8 ETH",
+    "description": "WarpRunner Elites are built for velocity-bending movement. These elite units are equipped to traverse rift zones and time loops, offering elite style and warp-grade speed.",
+    "symbol": "WRE",
+    "image": "WarpRunner_Elites.png"
+  }
+]

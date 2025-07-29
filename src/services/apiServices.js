@@ -1,5 +1,15 @@
 import axiosInstance from './axiosInstance';
 
+// export const createPaymentIntent = async data => {
+//   try {
+//     const response = await axiosInstance.post(`/api/payment/intents`, data);
+//     return response?.data;
+//   } catch (error) {
+//     console.log('API Error:', error);
+//     return error;
+//   }
+// };
+
 export const POST = async (uri, data) => {
   try {
     const response = await axiosInstance.post(`/api/${uri}`, data);
@@ -9,10 +19,21 @@ export const POST = async (uri, data) => {
     return error;
   }
 };
+export const GET = async (uri, page = 1, limit = 20) => {
+  try {
+    const response = await axiosInstance.get(
+      `${uri}?page=${page}&limit=${limit}`,
+    );
+    return response?.data;
+  } catch (error) {
+    console.log('API Error:', error);
+    return error;
+  }
+};
 
 export const signUp = async data => {
   try {
-    const response = await axiosInstance.post('/register', data);
+    const response = await axiosInstance.post('/api/register', data);
     return response?.data;
   } catch (error) {
     console.log('API Error:', error);
@@ -22,7 +43,7 @@ export const signUp = async data => {
 
 export const registerVerify = async data => {
   try {
-    const response = await axiosInstance.post('/registerVerify', data);
+    const response = await axiosInstance.post('/api/registerVerify', data);
     return response?.data;
   } catch (error) {
     console.log('API Error:', error);
@@ -57,7 +78,7 @@ export const registerVerify = async data => {
 export const searchProducts = async (search, page = 1, limit = 20) => {
   try {
     const response = await axiosInstance.get(
-      `/products/search?name=${search}&page=${page}&limit=${limit}`,
+      `/api/products/search?name=${search}&page=${page}&limit=${limit}`,
     );
     return response?.data;
   } catch (error) {
@@ -67,7 +88,16 @@ export const searchProducts = async (search, page = 1, limit = 20) => {
 };
 export const getProductsByID = async id => {
   try {
-    const response = await axiosInstance.get(`/products/${id}`);
+    const response = await axiosInstance.get(`/api/products/${id}`);
+    return response?.data;
+  } catch (error) {
+    console.log('API Error:', error);
+    return error;
+  }
+};
+export const getBidProductById = async id => {
+  try {
+    const response = await axiosInstance.get(`/api/bid/${id}`);
     return response?.data;
   } catch (error) {
     console.log('API Error:', error);
@@ -78,7 +108,7 @@ export const getProductsByID = async id => {
 export const getProducts = async (page = 1, limit = 10) => {
   try {
     const response = await axiosInstance.get(
-      `/products/data?page=${page}&limit=${limit}`,
+      `/api/products/data?page=${page}&limit=${limit}`,
     );
     return response?.data;
   } catch (error) {

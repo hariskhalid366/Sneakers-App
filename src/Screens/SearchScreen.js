@@ -24,16 +24,40 @@ const SearchScreen = ({navigation}) => {
   const [loading, setLoading] = useState(false);
   const [debouncedSearch] = useDebounce(search, 300);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (debouncedSearch.trim().length === 0) {
-        setProducts([]);
-        return;
-      }
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     if (debouncedSearch.trim().length === 0) {
+  //       setProducts([]);
+  //       return;
+  //     }
 
+  //     try {
+  //       setLoading(true);
+  //       const response = await searchProducts({search: debouncedSearch});
+  //       setProducts(response?.data || []);
+  //       console.log(response);
+  //     } catch (err) {
+  //       showToast(err.message || 'Something went wrong');
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchData();
+  // }, [debouncedSearch]);
+
+  useEffect(() => {
+    if (search.trim().length === 0) {
+      setProducts([]);
+      return;
+    }
+
+    const handler = setTimeout(async () => {
       try {
         setLoading(true);
-        const response = await searchProducts({search: debouncedSearch});
+        const response = await searchProducts({search});
+        console.log(response);
+
         setProducts(response?.data || []);
         console.log(response);
       } catch (err) {
@@ -41,12 +65,17 @@ const SearchScreen = ({navigation}) => {
       } finally {
         setLoading(false);
       }
-    };
+    }, 1000); // debounce delay
 
-    fetchData();
-  }, [debouncedSearch]);
+    // Cleanup on new keystroke
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [search]);
 
   return (
+    // API call
+
     <>
       {loading && <Loading />}
       <View style={{flex: 1, backgroundColor: theme.backgroundColor}}>

@@ -1,17 +1,13 @@
 import React, {useContext, useState} from 'react';
 import {
   ActivityIndicator,
-  Dimensions,
   Image,
   StyleSheet,
   Text,
-  ToastAndroid,
   TouchableOpacity,
   View,
-  ScrollView,
 } from 'react-native';
 import {
-  ChevronLeftIcon,
   EnvelopeIcon,
   LockClosedIcon,
   UserIcon,
@@ -25,12 +21,13 @@ import {hp, wp} from '../constants/Dimensions';
 import {POST} from '../services/apiServices';
 import {useMutation} from '@tanstack/react-query';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import {setItem} from '../constants/mmkv';
 import {AuthContext} from '../Navigation/Route';
 import showToast from '../Components/Toast';
-const {width, height} = Dimensions.get('screen');
+import {CommonActions, useNavigation} from '@react-navigation/native';
+import {setItem} from '../constants/mmkv';
 
-const LoginScreen = ({navigation}) => {
+const LoginScreen = () => {
+  const navigation = useNavigation();
   const {signIn} = useContext(AuthContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -44,15 +41,17 @@ const LoginScreen = ({navigation}) => {
         setItem('user', JSON.stringify(data?.user));
         showToast('Login successful');
 
-        navigation.replace('BottomNavigation');
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{name: 'BottomNavigation'}],
+          }),
+        );
       } else if (
         data?.message ===
         'Please verify your account with the OTP sent to your email.'
       ) {
-        navigation.navigate('OtpScreen', {
-          email: email,
-          password: password,
-        });
+        navigation.navigate('OtpScreen', {email, password});
         showToast(data?.message);
       } else {
         showToast('Invalid credentials');
@@ -73,12 +72,8 @@ const LoginScreen = ({navigation}) => {
 
       <KeyboardAwareScrollView
         extraHeight={hp(20)}
-        enableOnAndroid={true}
-        contentContainerStyle={styles.scrollContent}
-        style={styles.container}>
-        <TouchableOpacity onPress={navigation.pop} style={styles.backButton}>
-          <ChevronLeftIcon color={theme.darkColor} size={wp(4.5)} />
-        </TouchableOpacity>
+        enableOnAndroid
+        contentContainerStyle={styles.scrollContent}>
         <View style={styles.formContainer}>
           <Image
             style={styles.logo}
@@ -154,9 +149,7 @@ const LoginScreen = ({navigation}) => {
             title="Sign In"
             backgroundColor={theme.primery}
             color={theme.backgroundColor}
-            onPress={() => {
-              userLogin?.mutate({email, password});
-            }}
+            onPress={() => userLogin?.mutate({email, password})}
           />
 
           <GoogleSignin />
@@ -176,43 +169,25 @@ const LoginScreen = ({navigation}) => {
 export default LoginScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: wp(5),
+    backgroundColor: '#fff',
   },
   loaderOverlay: {
     position: 'absolute',
     top: 0,
-    height: height + wp(20),
-    width,
+    height: hp(100),
+    width: wp(100),
     backgroundColor: '#00000044',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 200,
   },
-  backButton: {
-    margin: wp(3),
-    backgroundColor: theme.secondaryBackground,
-    width: wp(12),
-    height: wp(12),
-    borderRadius: wp(6),
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'absolute',
-    top: wp(3),
-    left: wp(3),
-    zIndex: 100,
-  },
   formContainer: {
     width: wp(90),
-    paddingTop: wp(20),
-    paddingBottom: wp(6),
     alignItems: 'center',
   },
   logo: {

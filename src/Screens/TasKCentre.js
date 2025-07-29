@@ -19,6 +19,8 @@ import TaskVerifyModal from '../Components/((modal))/TaskVerify';
 import {useMutation, useQuery} from '@tanstack/react-query';
 import showToast from '../Components/Toast';
 import {completeTasks, tasks} from '../services/apiServices';
+import ScrollToRefresh from '../Components/Refresh';
+import {setItem} from '../constants/mmkv';
 
 const platformIcons = {
   youtube: require('../../assets/youtube.png'),
@@ -36,7 +38,7 @@ const TaskCentre = ({navigation}) => {
   const [selectedTask, setSelectedTask] = useState(null);
   const [text, setText] = useState('');
 
-  const {data, isLoading, error} = useQuery({
+  const {data, isLoading, error, refetch} = useQuery({
     queryKey: ['tasks'],
     queryFn: tasks,
     experimental_prefetchInRender: true,
@@ -48,7 +50,7 @@ const TaskCentre = ({navigation}) => {
       if (res?.status) {
         notificationRef?.current.show({
           type: 'coin',
-          text: `Task ${selectedTask.description} verified successfully!`,
+          text: `Task ${selectedTask?.description} verified successfully!`,
         });
       } else {
         showToast(res?.message);
@@ -69,8 +71,9 @@ const TaskCentre = ({navigation}) => {
       return showToast('Please enter the verification text.');
     }
 
-    if (text === selectedTask.target) {
+    if (text === selectedTask?.target) {
       verifyTask.mutate(selectedTask?._id);
+      setItem('tokens', selectedTask?.points);
     } else {
       ToastAndroid.show(
         'Verification failed. Please check the link.',
@@ -102,7 +105,7 @@ const TaskCentre = ({navigation}) => {
 
     return (
       <TouchableRipple
-        key={index}
+        key={item?._id}
         onPress={() => {
           Linking.openURL(item?.target);
           setSelectedTask(item);
@@ -155,12 +158,21 @@ const TaskCentre = ({navigation}) => {
       <Notification ref={notificationRef} />
       <View className="flex-1 p-5 bg-[#F7F7F9]">
         <Header />
-        <FlatList
-          data={data?.data}
-          keyExtractor={item => item.id}
-          renderItem={renderItem}
-          showsVerticalScrollIndicator={false}
-        />
+        <ScrollToRefresh onRefresh={refetch}>
+          <FlatList
+            ListEmptyComponent={() => (
+              <View className="flex-1 items-center justify-center">
+                <Text className="text-gray-500 text-lg">
+                  No tasks available
+                </Text>
+              </View>
+            )}
+            data={data?.data}
+            keyExtractor={item => item?._id}
+            renderItem={renderItem}
+            showsVerticalScrollIndicator={false}
+          />
+        </ScrollToRefresh>
       </View>
       <TaskVerifyModal
         ref={sheetRef}

@@ -1,46 +1,42 @@
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React, {useContext, useEffect, useRef, useState} from 'react';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {ChevronLeftIcon} from 'react-native-heroicons/outline';
-import {theme} from '../constants/theme';
-import LongButton from '../Components/LongButton';
 import OTPTextInput from 'react-native-otp-textinput';
-import {wp, hp} from '../constants/Dimensions';
 import {useMutation} from '@tanstack/react-query';
+
+import {theme} from '../constants/theme';
+import {wp, hp} from '../constants/Dimensions';
+import LongButton from '../Components/LongButton';
 import {POST} from '../services/apiServices';
 import {setItem} from '../constants/mmkv';
 import showToast from '../Components/Toast';
 import {AuthContext} from '../Navigation/Route';
+import {Loading} from '../Components';
 
 const OtpScreen = ({navigation, route}) => {
   const {signIn} = useContext(AuthContext);
   const {email, passwordReset = false} = route.params;
+
   const [otp, setOtp] = useState('');
   const [time, setTime] = useState(30);
   const otpInput = useRef(null);
 
   useEffect(() => {
+    setTime(30); // reset on mount
     const timer = setInterval(() => {
-      if (time > 0) {
-        setTime(prev => prev - 1);
-      }
+      setTime(prev => (prev > 0 ? prev - 1 : 0));
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [time]);
+  }, []);
 
   const verifyOtp = useMutation({
     mutationFn: data => POST('verify-otp', data),
     onSuccess: data => {
       if (data?.status) {
-        if (passwordReset) {
-          navigation.replace('NewPassword', {email, otp});
-          showToast('OTP verified, please reset your password');
-          return;
-        }
         signIn(data);
         setItem('user', JSON.stringify(data?.user));
         showToast('Login successful');
-
         navigation.replace('BottomNavigation');
       } else {
         showToast('Network error, please try again later');
@@ -52,54 +48,63 @@ const OtpScreen = ({navigation, route}) => {
   });
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity
-        onPress={() => navigation.pop()}
-        style={styles.backButton}>
-        <ChevronLeftIcon color={theme.darkColor} size={wp(4.5)} />
-      </TouchableOpacity>
+    <>
+      {verifyOtp.isPending && <Loading />}
+      <View style={styles.container}>
+        <TouchableOpacity
+          onPress={() => navigation.pop()}
+          style={styles.backButton}>
+          <ChevronLeftIcon color={theme.darkColor} size={wp(4.5)} />
+        </TouchableOpacity>
 
-      <View style={styles.contentWrapper}>
-        <View style={styles.header}>
-          <Text style={styles.headingText}>OTP Verification</Text>
-          <Text style={styles.subText}>
-            Please Check Your Email To See The{'\n'}Verification Code
-          </Text>
-        </View>
+        <View style={styles.contentWrapper}>
+          <View style={styles.header}>
+            <Text style={styles.headingText}>OTP Verification</Text>
+            <Text style={styles.subText}>
+              Please Check Your Email To See The{'\n'}Verification Code
+            </Text>
+          </View>
 
-        <Text style={styles.label}>OTP Code</Text>
+          <Text style={styles.label}>OTP Code</Text>
 
-        <View style={styles.otpInputContainer}>
-          <OTPTextInput
-            containerStyle={{marginTop: hp(1)}}
-            autoFocus
-            defaultValue={otp}
-            keyboardType="number-pad"
-            textInputStyle={styles.otpBox}
-            tintColor={theme.primery}
-            inputCount={6}
-            handleTextChange={setOtp}
-            ref={otpInput}
+          <View style={styles.otpInputContainer}>
+            <OTPTextInput
+              containerStyle={styles.otpContainer}
+              autoFocus
+              defaultValue={otp}
+              keyboardType="number-pad"
+              textInputStyle={styles.otpBox}
+              tintColor={theme.primery}
+              inputCount={6}
+              handleTextChange={setOtp}
+              ref={otpInput}
+            />
+          </View>
+
+          <LongButton
+            title="Verify"
+            backgroundColor={theme.primery}
+            color={theme.backgroundColor}
+            onPress={() => {
+              if (passwordReset) {
+                navigation.replace('NewPassword', {email, otp});
+                showToast('OTP verified, please reset your password');
+                return;
+              }
+
+              verifyOtp.mutate({email, otp});
+            }}
           />
-        </View>
 
-        <LongButton
-          title="Verify"
-          backgroundColor={theme.primery}
-          color={theme.backgroundColor}
-          onPress={() => {
-            verifyOtp.mutate({email, otp});
-          }}
-        />
-
-        <View style={styles.timerWrapper}>
-          <Text style={styles.timerText}>Resend code to</Text>
-          <Text style={styles.timerText}>
-            00:{time < 10 ? `0${time}` : time}
-          </Text>
+          <View style={styles.timerWrapper}>
+            <Text style={styles.timerText}>Resend code to</Text>
+            <Text style={styles.timerText}>
+              00:{time < 10 ? `0${time}` : time}
+            </Text>
+          </View>
         </View>
       </View>
-    </View>
+    </>
   );
 };
 
@@ -150,10 +155,13 @@ const styles = StyleSheet.create({
   otpInputContainer: {
     marginVertical: hp(1.5),
   },
+  otpContainer: {
+    marginTop: hp(1),
+  },
   otpBox: {
     borderWidth: 1,
-    borderColor: '#fff',
-    borderRadius: wp(4),
+    borderColor: '#ccc',
+    borderRadius: wp(3),
     fontSize: wp(4.5),
     fontWeight: 'bold',
     color: theme.darkColor,

@@ -1,6 +1,10 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {ChevronLeftIcon, EnvelopeIcon} from 'react-native-heroicons/outline';
+import {
+  ChevronLeftIcon,
+  EnvelopeIcon,
+  LockOpenIcon,
+} from 'react-native-heroicons/outline';
 
 import {theme} from '../constants/theme';
 import {InputField} from '../Components';
@@ -8,14 +12,18 @@ import LongButton from '../Components/LongButton';
 import showToast from '../Components/Toast'; // <-- use your custom toast
 import {wp} from '../constants/Dimensions';
 import {useMutation} from '@tanstack/react-query';
+import {POST} from '../services/apiServices';
+import {AuthContext} from '../Navigation/Route';
+import {setItem} from '../constants/mmkv';
 
 const SetNewPassword = ({navigation, route}) => {
   const {email, otp} = route.params || {};
   const [newPassword, setNewPassword] = useState('');
   const [confirm, setConfirm] = useState('');
+  const {signIn} = useContext(AuthContext);
 
   const resetPassword = useMutation({
-    mutationFn: data => POST('request-password-reset', data),
+    mutationFn: data => POST('reset-password', data),
     onSuccess: data => {
       if (data?.status) {
         signIn(data);
@@ -43,6 +51,7 @@ const SetNewPassword = ({navigation, route}) => {
 
   return (
     <>
+      {resetPassword.isPending && <Loading />}
       <View className="flex-1 p-5 bg-white">
         <TouchableOpacity
           onPress={() => navigation.pop()}
@@ -71,7 +80,7 @@ const SetNewPassword = ({navigation, route}) => {
             value={confirm}
             onChangeText={text => setConfirm(text)}
             placeholder="*********"
-            appendChild={<EnvelopeIcon color={theme.primeryDark} size={22} />}
+            appendChild={<LockOpenIcon color={theme.primeryDark} size={22} />}
           />
           <InputField
             maxLength={40}
@@ -79,7 +88,7 @@ const SetNewPassword = ({navigation, route}) => {
             value={newPassword}
             onChangeText={text => setNewPassword(text)}
             placeholder="*********"
-            appendChild={<EnvelopeIcon color={theme.primeryDark} size={22} />}
+            appendChild={<LockOpenIcon color={theme.primeryDark} size={22} />}
           />
 
           <LongButton

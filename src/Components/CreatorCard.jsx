@@ -1,57 +1,15 @@
 import {Dimensions, Text, View, TouchableOpacity, Image} from 'react-native';
 import React from 'react';
-import {HeartIcon, PlusIcon} from 'react-native-heroicons/outline';
-import {HeartIcon as Heart} from 'react-native-heroicons/solid';
-import {theme} from '../constants/theme';
+
 import {useNavigation} from '@react-navigation/native';
-import {useDispatch} from 'react-redux';
-import {productSlice} from '../ReduxStore/productSlice';
-import {useCart} from '../AsyncStorage/cartStorage';
-import {useFavorites} from '../AsyncStorage/FavStorage';
+
 import Animated from 'react-native-reanimated';
 import {hp, wp} from '../constants/Dimensions';
 
-const {width} = Dimensions.get('screen');
-
-const CreatorCard = ({item, favourite, setRef}) => {
-  // const {addToCart} = useCart();
-  // const {favorites, addToFavorites, removeFromFavorites} = useFavorites();
-
-  // const [isFavorite, setIsFavorite] = React.useState(false);
-
-  // React.useEffect(() => {
-  //   const isItemFavorite = favorites.some(
-  //     favoriteItem => favoriteItem.id === item.id,
-  //   );
-  //   setIsFavorite(isItemFavorite);
-  // }, [favorites, item]);
-
-  // const handleToggleFavorite = () => {
-  //   if (isFavorite) {
-  //     removeFromFavorites(item.id);
-  //   } else {
-  //     setRef?.current?.show({type: 'fav', text: item.name, image: item.image});
-  //     addToFavorites(item);
-  //   }
-  // };
-
-  // // };
-  // const dispatch = useDispatch();
-
-  // const pressOnProduct = () => {
-  //   dispatch(productSlice.actions.setSelectedProduct(item.id));
-  //   navigation.navigate('Product');
-  //   // navigation.navigate('Product', {id: item._id});
-  // };
-
-  // const handleAddToCart = product => {
-  //   addToCart(product);
-  //   setRef?.current?.show({type: 'cart', text: item.name, image: item.image});
-  // };
-
+const CreatorCard = ({item}) => {
   const navigation = useNavigation();
   return (
-    <View
+    <TouchableOpacity
       style={{height: hp(32)}}
       key={item?.id}
       className="flex-1 p-2 bg-white elevation-md m-3 rounded-2xl">
@@ -67,7 +25,7 @@ const CreatorCard = ({item, favourite, setRef}) => {
             resizeMode: 'cover',
           }}
           // source={{uri: item?.image || item?.imageURL}}
-          source={require('../../assets/shoes.png')}
+          source={{uri: item?.image}}
         />
         {/* ) : null} */}
         {/* <View
@@ -78,8 +36,13 @@ const CreatorCard = ({item, favourite, setRef}) => {
       <View className="py-3 px-2 flex-row items-center gap-2 justify-between">
         <View className="flex-row items-center justify-center gap-2 flex-1 ">
           <Image
-            source={require('../../assets/logo.png')}
-            style={{width: wp(10), height: wp(10), borderRadius: wp(100)}}
+            source={{uri: item?.creator?.avatar}}
+            style={{
+              width: wp(10),
+              height: wp(10),
+              borderRadius: wp(100),
+              backgroundColor: '#00000029',
+            }}
           />
           <View className="flex-1 gap-1">
             <View style={{width: '100%'}} className="flex-row justify-between">
@@ -90,8 +53,7 @@ const CreatorCard = ({item, favourite, setRef}) => {
                   maxWidth: '70%',
                 }}
                 className="text-primary  font-medium">
-                {/* {item?.brand} */}
-                Dildo
+                {item?.name}
               </Text>
               <Text
                 numberOfLines={1}
@@ -106,16 +68,12 @@ const CreatorCard = ({item, favourite, setRef}) => {
               numberOfLines={2}
               style={{fontSize: wp(3), fontWeight: '400'}}
               className="text-black font-normal tracking-wide">
-              {/* {item?.name} */}
-              aslkjfd;las;lkjfd; Lorem ipsum dolor sit amet consectetur
-              adipisicing elit. Beatae ipsum, eaque alias sint repudiandae illum
-              nihil consectetur necessitatibus architecto modi earum at magnam
-              laudantium quasi vel unde quod praesentium autem?
+              {item?.description}
             </Text>
           </View>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 

@@ -1,6 +1,6 @@
 # Sneakers Mobile App
 
-![Sneakers App Banner](assets/background.png)
+![Sneakers App Banner](assets/logo.png)
 
 Welcome to the Sneakers mobile app repository! This is a feature-rich mobile application for iOS and Android that serves as a marketplace for sneakers, blending traditional e-commerce with modern Web3 features.
 

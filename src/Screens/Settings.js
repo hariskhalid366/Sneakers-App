@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   View,
   ScrollView,
+  Alert,
 } from 'react-native';
 import React from 'react';
 import {HeaderComp} from '../Components';
@@ -12,39 +13,40 @@ import {HeaderBackButton} from '@react-navigation/elements';
 import Nfts from '../constants/nftData.json';
 import {wp} from '../constants/Dimensions';
 import nftImages from '../constants/nftImages';
-import {
-  NFTDescription,
-  NFTMedia,
-  NFTName,
-  NFTProvider,
-  useActiveAccount,
-  useReadContract,
-  useWalletBalance,
-} from 'thirdweb/react';
-import {
-  client,
-  contract,
-  nftContract,
-  tokenContract,
-} from '../constants/thirdweb';
+import {getContract} from 'thirdweb';
 import {sepolia} from 'thirdweb/chains';
+import {claimTo} from 'thirdweb/extensions/erc721';
+import {useActiveAccount, useSendTransaction} from 'thirdweb/react';
+import LongButton from '../Components/LongButton';
+import {client} from '../constants/thirdweb';
+import {theme} from '../constants/theme';
 
 const Settings = ({navigation}) => {
-  // const {data, isLoading} = useReadContract({
-  //   contract: contract,
-  // });
+  const address = useActiveAccount();
 
-  const account = useActiveAccount();
-
-  const {data, isLoading, isError} = useWalletBalance({
+  const nftDropContract = getContract({
+    client: client,
     chain: sepolia,
-    address: account?.address,
-    client,
-    tokenContract: tokenContract,
+    address: '0x35a95368b79Df3D42A77C9E0eB963Fa5e37113d8',
   });
-  console.log(isLoading, data, isError);
 
-  // console.log(data, isLoading);
+  const {mutateAsync: sendTransaction} = useSendTransaction();
+
+  const claimNFT = async recipientAddress => {
+    try {
+      const transaction = claimTo({
+        contract: nftDropContract,
+        to: recipientAddress,
+        quantity: BigInt(1),
+      });
+      await sendTransaction(transaction);
+      console.log('NFT claimed successfully!');
+    } catch (error) {
+      console.log(error);
+
+      Alert.alert('Transaction Error', 'GO gas fees available');
+    }
+  };
 
   return (
     <>
@@ -53,8 +55,14 @@ const Settings = ({navigation}) => {
         apppend={<View className="w-10" />}
         prepend={<HeaderBackButton onPress={() => navigation.goBack()} />}
       />
-
       <ScrollView>
+        <View style={{width: wp(90), alignSelf: 'center'}}>
+          <LongButton
+            title={'Claim random nft'}
+            backgroundColor={theme.primery}
+            onPress={() => claimNFT(address?.address)}
+          />
+        </View>
         <View style={styles.container}>
           {Nfts.map((nft, index) => (
             <TouchableOpacity
@@ -63,8 +71,8 @@ const Settings = ({navigation}) => {
               onPress={() => navigation.navigate('NftDetails', {nft})}>
               <Image source={nftImages[nft?.image]} style={styles.image} />
               <View style={styles.textContainer}>
-                <Text style={styles.title}>{nft.name}</Text>
-                <Text style={styles.price}>{nft.price}</Text>
+                <Text style={styles.title}>{nft?.name}</Text>
+                <Text style={styles.price}>{nft?.price}</Text>
               </View>
             </TouchableOpacity>
           ))}

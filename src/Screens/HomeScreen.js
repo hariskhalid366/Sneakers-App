@@ -31,6 +31,7 @@ import {
   Loading,
 } from '../Components';
 import LottieView from 'lottie-react-native';
+import nftImages from '../constants/nftImages';
 // import LottieView from 'lottie-react-native'; // comment if using web
 
 const HomeScreen = ({navigation}) => {
@@ -199,7 +200,13 @@ const HomeScreen = ({navigation}) => {
           </TouchableOpacity>
         </View>
 
-        <ScrollView contentContainerStyle={styles.container}>
+        <ScrollView
+          style={{flexDirection: 'row'}}
+          contentContainerStyle={{
+            gap: 10,
+            padding: 16,
+            flexDirection: 'row',
+          }}>
           {Nfts.map((nft, index) => (
             <TouchableOpacity key={index} style={styles.card}>
               <Image source={nftImages[nft?.image]} style={styles.image} />
@@ -211,8 +218,15 @@ const HomeScreen = ({navigation}) => {
           ))}
           <TouchableOpacity
             onPress={() => navigation.navigate('NFTs')}
-            style={styles.card}>
-            <Text>View All</Text>
+            style={{
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: '#fff',
+              width: wp(30),
+            }}>
+            <Text className="font-bold tracking-wider text-primary">
+              View All
+            </Text>
           </TouchableOpacity>
         </ScrollView>
 
@@ -327,13 +341,7 @@ const styles = StyleSheet.create({
     color: theme.primery,
     fontWeight: '700',
   },
-  container: {
-    gap: 10,
-    padding: 16,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
+
   card: {
     alignItems: 'center',
     width: wp(33.3),

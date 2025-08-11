@@ -1,4 +1,4 @@
-import {createThirdwebClient, getContract} from 'thirdweb';
+import {createThirdwebClient, defineChain, getContract} from 'thirdweb';
 import {base, baseSepolia, sepolia} from 'thirdweb/chains';
 
 const clientId = 'dd0b45a9c9ad9e7edb0ffde2c77ecb4f';
@@ -17,9 +17,10 @@ if (!clientId) {
   );
 }
 
-export const nftContract = '0x35a95368b79Df3D42A77C9E0eB963Fa5e37113d8';
+export const dropContractAddresss =
+  '0x35a95368b79Df3D42A77C9E0eB963Fa5e37113d8';
 export const accountFactory = '0xf60e19045da1133e804556f6b9c532d49da8e1bc';
-export const tokenContract = '0xDa2252B4Cf3c1dD8a490d253849bB5E00Cce00D5';
+// export const tokenContract = '0xDa2252B4Cf3c1dD8a490d253849bB5E00Cce00D5';
 
 export const client = createThirdwebClient({
   clientId,
@@ -28,10 +29,23 @@ export const client = createThirdwebClient({
 
 export const chain = base;
 
-export const contract = getContract({
+//base seolia ether 84532
+
+export const dropContract = getContract({
   client,
-  address: nftContract,
-  chain: sepolia,
+  chain: defineChain(11155111),
+  address: '0x35a95368b79Df3D42A77C9E0eB963Fa5e37113d8',
+});
+export const collectionContract = getContract({
+  client,
+  chain: defineChain(11155111),
+  address: '0x1fF05f9b9Ec890125a068BF7F625EC9c4cd5cCd9',
+});
+
+export const tokenContract = getContract({
+  client,
+  chain: defineChain(11155111),
+  address: '0xDa2252B4Cf3c1dD8a490d253849bB5E00Cce00D5',
 });
 
 export const usdcContract = getContract({

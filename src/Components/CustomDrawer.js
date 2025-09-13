@@ -68,8 +68,8 @@ const CustomDrawer = props => {
             style={styles.userImage}
             source={
               data?.profile
-                ? {uri: `data:image/jpeg;base64,${imageData}`}
-                : require('../../assets/logo.png')
+                ? {uri: `${imageData}`}
+                : require('../../assets/user.png')
             }
           />
         </View>
@@ -96,6 +96,7 @@ const CustomDrawer = props => {
               client={client}
               connectModal={{size: 'compact'}}
               wallets={wallets}
+              onConnect={() => props.navigation.closeDrawer()}
             />
           )}
         </View>

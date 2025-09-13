@@ -12,10 +12,10 @@ const ProfileMintCard = ({item}) => {
   return (
     <TouchableOpacity
       style={{height: hp(32)}}
-      key={item?.id}
+      key={item?._id}
       onPress={() => {
         navigation.navigate('Product', {
-          id: item?._id || item.id,
+          id: item?._id || item?._id,
           minted: true,
         });
       }}

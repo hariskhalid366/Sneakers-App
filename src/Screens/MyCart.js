@@ -42,14 +42,14 @@ const MyCart = () => {
 
   const handleCheckPress = item => {
     const isSelected = selectedItems.some(
-      selectedItem => selectedItem.item.id === item.id,
+      selectedItem => selectedItem?.item?._id === item?._id,
     );
 
     setSelectedItems(prevSelectedItems => {
       let updatedSelectedItems;
       if (isSelected) {
         updatedSelectedItems = prevSelectedItems.filter(
-          selectedItem => selectedItem.item.id !== item.id,
+          selectedItem => selectedItem.item?._id !== item?._id,
         );
       } else {
         updatedSelectedItems = [
@@ -111,7 +111,7 @@ const MyCart = () => {
           }
         />
         <Text className="   px-2 text-lg font-semibold tracking-wide">
-          {cart.length} Items
+          {cart?.length} Items
         </Text>
         {cart.length > 0 ? (
           <FlatList
@@ -122,13 +122,13 @@ const MyCart = () => {
               <CartCard
                 item={item}
                 increasePress={() => {
-                  handleIncreaseQuantity(item.id);
+                  handleIncreaseQuantity(item?._id);
                 }}
                 deletePress={() => {
-                  handleRemoveFromCart(item.id);
+                  handleRemoveFromCart(item?._id);
                 }}
                 decresePress={() => {
-                  handleDecreaseQuantity(item.id);
+                  handleDecreaseQuantity(item?._id);
                 }}
                 handleCheckPress={handleCheckPress}
                 selectedItems={selectedItems}

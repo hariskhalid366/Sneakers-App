@@ -110,7 +110,7 @@ const ChatBotScreen = ({navigation}) => {
           ref={listRef}
           style={styles.messageList}
           data={messages}
-          keyExtractor={item => item.id}
+          keyExtractor={item => item?._id}
           renderItem={renderItem}
           contentContainerStyle={{padding: 16, paddingBottom: 100}}
           showsVerticalScrollIndicator={false}

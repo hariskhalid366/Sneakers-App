@@ -12,7 +12,7 @@ export const popularProductSlice = createSlice({
   reducers: {
     setSelectedPopular: (action, state) => {
       const popularId = action.payload;
-      state.selectedPopular = state.product.find(p => p.id === popularId);
+      state.selectedPopular = state.product.find(p => p?._id === popularId);
     },
   },
 });

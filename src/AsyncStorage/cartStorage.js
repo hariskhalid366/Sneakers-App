@@ -25,7 +25,7 @@ const cartReducer = (state, action) => {
 };
 
 const addToCart = (state, newItem) => {
-  const existingItemIndex = state.findIndex(item => item.id === newItem.id);
+  const existingItemIndex = state.findIndex(item => item?._id === newItem?._id);
 
   if (existingItemIndex !== -1) {
     state[existingItemIndex].quantity += 1; // If the item exists, update the quantity
@@ -37,11 +37,11 @@ const addToCart = (state, newItem) => {
 };
 
 const removeFromCart = (state, itemIdToRemove) => {
-  return state.filter(item => item.id !== itemIdToRemove);
+  return state.filter(item => item?._id !== itemIdToRemove);
 };
 
 const increaseQuantity = (state, itemIdToIncrease) => {
-  const itemToIncrease = state.find(item => item.id === itemIdToIncrease);
+  const itemToIncrease = state.find(item => item?._id === itemIdToIncrease);
 
   if (itemToIncrease) {
     itemToIncrease.quantity += 1;
@@ -51,14 +51,14 @@ const increaseQuantity = (state, itemIdToIncrease) => {
 };
 
 const decreaseQuantity = (state, itemIdToDecrease) => {
-  const itemToDecrease = state.find(item => item.id === itemIdToDecrease);
+  const itemToDecrease = state.find(item => item?._id === itemIdToDecrease);
 
   if (itemToDecrease) {
     if (itemToDecrease.quantity > 1) {
       itemToDecrease.quantity -= 1;
     } else {
       // If quantity is 1 or less, remove the item
-      return state.filter(item => item.id !== itemIdToDecrease);
+      return state.filter(item => item?._id !== itemIdToDecrease);
     }
   }
 

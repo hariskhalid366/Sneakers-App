@@ -11,7 +11,7 @@ const CreatorCard = ({item}) => {
   return (
     <TouchableOpacity
       style={{height: hp(32)}}
-      key={item?.id}
+      key={item?._id}
       className="flex-1 p-2 bg-white elevation-md m-3 rounded-2xl">
       <View>
         {/* {item?.image || item?.imageURL ? ( */}

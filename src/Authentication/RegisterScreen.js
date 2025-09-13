@@ -99,7 +99,7 @@ const RegisterScreen = ({navigation}) => {
       <ScrollView className="flex-1 bg-white p-5 ">
         <TouchableOpacity
           onPress={() => {
-            navigation.pop();
+            navigation.goBack();
           }}
           style={{backgroundColor: theme.secondaryBackground}}
           className="w-12 h-12 rounded-full justify-center items-center">
@@ -227,7 +227,7 @@ const RegisterScreen = ({navigation}) => {
           </Text>
           <TouchableOpacity
             onPress={() => {
-              navigation.pop();
+              navigation.goBack();
             }}>
             <Text
               className="font-bold tracking-wider text-sm"

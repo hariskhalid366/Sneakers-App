@@ -36,7 +36,7 @@ export const FavoritesProvider = ({children}) => {
   const removeFromFavorites = async itemIdToRemove => {
     try {
       const updatedFavorites = favorites.filter(
-        item => item.id !== itemIdToRemove,
+        item => item?._id !== itemIdToRemove,
       );
       setFavorites(updatedFavorites);
       await AsyncStorage.setItem('favorites', JSON.stringify(updatedFavorites));

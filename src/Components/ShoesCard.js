@@ -39,8 +39,8 @@ const ShoesCard = ({item, favourite, setRef}) => {
   const dispatch = useDispatch();
 
   const pressOnProduct = () => {
-    dispatch(productSlice.actions.setSelectedProduct(item.id));
-    navigation.navigate('Product', {id: item?._id || item.id});
+    dispatch(productSlice.actions.setSelectedProduct(item?._id));
+    navigation.navigate('Product', {id: item?._id || item?._id});
     // navigation.navigate('Product', {id: item._id});
   };
 
@@ -52,7 +52,7 @@ const ShoesCard = ({item, favourite, setRef}) => {
   const navigation = useNavigation();
   return (
     <View
-      key={item?.id}
+      key={item?._id}
       style={{width: width * 0.43}}
       className="flex-1 bg-white elevation-sm my-3 mx-1 rounded-2xl">
       <View className="px-3 py-2">

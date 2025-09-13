@@ -194,7 +194,7 @@ const DisplayOrder = ({items}) => {
             </View>
             <FlatList
               data={item.order.product}
-              keyExtractor={product => product.item.id}
+              keyExtractor={product => product.item?._id}
               renderItem={({item}) => {
                 return (
                   <View className="p-4 gap-1">

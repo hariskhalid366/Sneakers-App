@@ -8,6 +8,7 @@ import LongButton from '../Components/LongButton';
 import showToast from '../Components/Toast'; // <-- use your custom toast
 import {wp} from '../constants/Dimensions';
 import {useMutation} from '@tanstack/react-query';
+import {POST} from '../services/apiServices';
 
 const ForgetPasswordScreen = ({navigation}) => {
   const [email, setEmail] = useState('');
@@ -44,7 +45,7 @@ const ForgetPasswordScreen = ({navigation}) => {
       {requestReset?.isPending && <Loading />}
       <View className="flex-1 p-5 pt-11 bg-white">
         <TouchableOpacity
-          onPress={() => navigation.pop()}
+          onPress={() => navigation.goBack()}
           style={styles.backButton}
           className="w-12 h-12 rounded-full justify-center items-center">
           <ChevronLeftIcon color={theme.darkColor} size={18} />

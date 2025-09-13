@@ -1,63 +1,64 @@
-import {Image, StyleSheet, Text, View} from 'react-native';
 import React, {useState} from 'react';
-import {ScrollView} from 'react-native-gesture-handler';
+import {Image, StyleSheet, Text, View, ScrollView} from 'react-native';
 import {HeaderBackButton} from '@react-navigation/elements';
 import {HeaderComp, Loading} from '../Components';
 import {hp, wp} from '../constants/Dimensions';
 import nftImages from '../constants/nftImages';
 import {getContract} from 'thirdweb';
 import {client} from '../constants/thirdweb';
-import {useActiveAccount} from 'thirdweb/react';
-import LongButton from '../Components/LongButton';
+import {useActiveAccount, useSendTransaction} from 'thirdweb/react';
+import {mintTo} from 'thirdweb/extensions/erc721';
 import {theme} from '../constants/theme';
 import {sepolia} from 'thirdweb/chains';
-import {useSendTransaction} from 'thirdweb/react';
-import {lazyMint} from 'thirdweb/extensions/erc721';
+import LongButton from '../Components/LongButton';
+import showToast from '../Components/Toast';
 
 const NFTPage = ({route, navigation}) => {
-  const [isMinting, setIsMinting] = useState(false); // 👈 prevents repeated minting
   const {nft} = route?.params;
-  const address = useActiveAccount();
-  const walletAddress = '0xA1363C5Fece59Ec997CbBc0496e91D09fdbB9f80';
+  const [isMinting, setIsMinting] = useState(false);
+  const account = useActiveAccount(); // 👈 active wallet object
+  const userAddress = account?.address; // 👈 actual address
 
+  // your collection contract
   const nftCollectionContract = getContract({
     client,
     chain: sepolia,
     address: '0x1fF05f9b9Ec890125a068BF7F625EC9c4cd5cCd9',
   });
+
   const {mutateAsync: sendTransaction} = useSendTransaction();
 
-  const lazyMintNFTs = async metadataList => {
+  const mint = async () => {
+    if (!userAddress) {
+      showToast('No wallet connected');
+      return;
+    }
+    setIsMinting(true);
     try {
-      const transaction = lazyMint({
+      const tx = mintTo({
         contract: nftCollectionContract,
-        nfts: metadataList,
+        to: userAddress,
+        nft: {
+          name: nft?.name,
+          description: nft?.description,
+          image: nftImages[nft?.image], // ensure this resolves to a valid URI or file
+        },
       });
-      await sendTransaction(transaction);
-      console.log('NFTs lazy minted successfully!');
-    } catch (error) {
-      console.error('Failed to lazy mint NFTs', error);
+      await sendTransaction(tx);
+      showToast('NFT minted to', userAddress);
+    } catch (err) {
+      showToast('Minting failed:', err);
+    } finally {
+      setIsMinting(false);
     }
   };
 
-  const metadata = {
-    name: nft?.name,
-    description: nft?.description,
-    image: nftImages[nft?.image],
-  };
-
-  const mint = () => {
-    if (walletAddress) {
-      mintNFT(metadata, walletAddress);
-      console.log(walletAddress);
-    }
-  };
   return (
     <>
       {isMinting && <Loading />}
       <HeaderComp
         title={nft?.name || 'NFT Details'}
-        apppend={<View className="w-10" />}
+        apppend={<View style={{width: 40}} />}
         prepend={<HeaderBackButton onPress={() => navigation.goBack()} />}
       />
       <View>
@@ -83,8 +84,8 @@ const NFTPage = ({route, navigation}) => {
           <LongButton
             backgroundColor={theme.primery}
             title={isMinting ? 'Minting...' : 'Mint NFT'}
-            onPress={() => mint()}
-            disabled={isMinting} // 👈 disables button while minting
+            onPress={mint}
+            disabled={isMinting}
           />
         </ScrollView>
       </View>

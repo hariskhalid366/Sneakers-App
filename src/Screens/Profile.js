@@ -10,7 +10,7 @@ import {
 import {theme} from '../constants/theme';
 import {hp, wp} from '../constants/Dimensions';
 import {useQuery} from '@tanstack/react-query';
-import {getItem} from '../constants/mmkv';
+import {getItem, imageBuffer} from '../constants/mmkv';
 import {ScrollView} from 'react-native-gesture-handler';
 import showToast from '../Components/Toast';
 import {GET} from '../services/apiServices';
@@ -88,10 +88,25 @@ const Profile = () => {
             wallets={wallets}
           />
         </View>
-        <Image
-          source={require('../../assets/logo.png')}
-          style={{width: 130, height: 130, borderRadius: 200}}
-        />
+        <View
+          style={{
+            backgroundColor: theme.primery,
+            borderRadius: wp(100),
+            width: wp(24),
+            height: wp(24),
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginBottom: wp(4),
+          }}>
+          <Image
+            style={{width: 130, height: 130, borderRadius: 200}}
+            source={
+              data?.profile
+                ? {uri: `${imageBuffer(data?.profile)}`}
+                : require('../../assets/user.png')
+            }
+          />
+        </View>
         <InputField
           prependChild={
             <UserIcon color={theme.primeryDark} size={'22'} strokeWidth={2} />

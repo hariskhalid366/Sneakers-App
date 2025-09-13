@@ -61,6 +61,8 @@ const ProductScreen = ({navigation, route}) => {
     }, 1500);
   };
 
+  console.log('data', data?.product._id);
+
   const {favorites, addToFavorites, removeFromFavorites} = useFavorites();
 
   const [isFavorite, setIsFavorite] = React.useState(false);

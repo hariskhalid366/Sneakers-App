@@ -12,7 +12,7 @@ export const favSlice = createSlice({
       const newProduct = action.payload.product;
       console.log(state.items, action);
       const existingIndex = state.items.find(
-        item => item.product.id === newProduct.id,
+        item => item.product?._id === newProduct?._id,
       );
       if (existingIndex) {
         state.items = state.items.filter(item => {

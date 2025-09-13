@@ -1,5 +1,5 @@
 import axios from 'axios';
-import Config from 'react-native-config';
+
 import {getItem} from '../constants/mmkv';
 
 const axiosInstance = axios.create({

@@ -56,14 +56,14 @@ const BidProductScreen = ({navigation, route}) => {
   React.useEffect(() => {
     // Check if the current item is in the favorites list
     const isItemFavorite = favorites.some(
-      favoriteItem => favoriteItem.id === product.id,
+      favoriteItem => favoriteItem?._id === product?._id,
     );
     setIsFavorite(isItemFavorite);
   }, [favorites, product]);
 
   const handleToggleFavorite = () => {
     if (isFavorite) {
-      removeFromFavorites(product.id);
+      removeFromFavorites(product?._id);
     } else {
       addToFavorites(product);
     }

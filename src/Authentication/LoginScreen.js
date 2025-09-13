@@ -75,10 +75,21 @@ const LoginScreen = () => {
         enableOnAndroid
         contentContainerStyle={styles.scrollContent}>
         <View style={styles.formContainer}>
-          <Image
-            style={styles.logo}
-            source={require('../../assets/logo.png')}
-          />
+          <View
+            style={{
+              backgroundColor: theme.primery,
+              borderRadius: wp(100),
+              width: wp(24),
+              height: wp(24),
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginBottom: wp(4),
+            }}>
+            <Image
+              style={styles.logo}
+              source={require('../../assets/user.png')}
+            />
+          </View>
 
           <View style={styles.welcomeText}>
             <Text style={styles.heading}>Hello Again!</Text>
@@ -191,8 +202,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logo: {
-    width: wp(32),
-    height: wp(32),
+    width: wp(20),
+    height: wp(20),
     borderRadius: wp(16),
     marginBottom: wp(4),
   },

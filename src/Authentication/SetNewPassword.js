@@ -54,7 +54,7 @@ const SetNewPassword = ({navigation, route}) => {
       {resetPassword.isPending && <Loading />}
       <View className="flex-1 p-5 bg-white">
         <TouchableOpacity
-          onPress={() => navigation.pop()}
+          onPress={() => navigation.goBack()}
           style={styles.backButton}
           className="w-12 h-12 rounded-full justify-center items-center">
           <ChevronLeftIcon color={theme.darkColor} size={18} />

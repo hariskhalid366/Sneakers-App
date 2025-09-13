@@ -47,7 +47,7 @@ const OrderedProduct = ({navigation}) => {
           prepend={
             <TouchableOpacity
               onPress={() => {
-                navigation.pop();
+                navigation.goBack();
               }}
               style={{
                 backgroundColor: theme.backgroundColor,

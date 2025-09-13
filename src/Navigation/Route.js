@@ -147,7 +147,7 @@ const Route = () => {
                 options={{
                   statusBarTranslucent: true,
                   statusBarStyle: 'light',
-                  statusBarBackgroundColor: theme.backdrop,
+                  // statusBarBackgroundColor: theme.backdrop,
                 }}
               />
               <Stack.Screen name="Login" component={LoginScreen} />

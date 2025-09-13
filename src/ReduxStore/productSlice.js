@@ -12,7 +12,7 @@ export const productSlice = createSlice({
   reducers: {
     setSelectedProduct: (state, action) => {
       const productId = action.payload;
-      state.selectedProduct = state.product.find(p => p.id === productId);
+      state.selectedProduct = state.product.find(p => p?._id === productId);
     },
   },
 });

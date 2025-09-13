@@ -52,7 +52,7 @@ const OtpScreen = ({navigation, route}) => {
       {verifyOtp.isPending && <Loading />}
       <View style={styles.container}>
         <TouchableOpacity
-          onPress={() => navigation.pop()}
+          onPress={() => navigation.goBack()}
           style={styles.backButton}>
           <ChevronLeftIcon color={theme.darkColor} size={wp(4.5)} />
         </TouchableOpacity>
@@ -82,7 +82,7 @@ const OtpScreen = ({navigation, route}) => {
           </View>
 
           <LongButton
-            title="Verify"
+            title={time === 0 ? 'Resend Code' : 'Verify'}
             backgroundColor={theme.primery}
             color={theme.backgroundColor}
             onPress={() => {
@@ -97,7 +97,7 @@ const OtpScreen = ({navigation, route}) => {
           />
 
           <View style={styles.timerWrapper}>
-            <Text style={styles.timerText}>Resend code to</Text>
+            <Text style={styles.timerText}>Resend code in</Text>
             <Text style={styles.timerText}>
               00:{time < 10 ? `0${time}` : time}
             </Text>

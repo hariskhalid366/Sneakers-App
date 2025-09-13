@@ -26,7 +26,7 @@ const addNotification = (state, newNotification) => {
 
 const deleteNotification = (state, notificationIdToDelete) => {
   const updatedNotifications = state.filter(
-    notification => notification.id !== notificationIdToDelete,
+    notification => notification?._id !== notificationIdToDelete,
   );
   saveNotificationsToStorage(updatedNotifications);
   return updatedNotifications;

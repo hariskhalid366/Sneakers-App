@@ -96,7 +96,7 @@ const CartCard = ({
           style={{
             backgroundColor:
               selectedItems.findIndex(
-                selectedItem => selectedItem.item.id === item.id,
+                selectedItem => selectedItem.item?._id === item?._id,
               ) !== -1
                 ? theme.primery
                 : '#00000012',
@@ -105,7 +105,7 @@ const CartCard = ({
           <CheckIcon
             color={
               selectedItems.findIndex(
-                selectedItem => selectedItem.item.id === item.id,
+                selectedItem => selectedItem.item?._id === item?._id,
               ) !== -1
                 ? '#fff'
                 : '#000'

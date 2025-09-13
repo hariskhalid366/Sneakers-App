@@ -12,7 +12,7 @@ export const popularProductSlice = createSlice({
   reducers: {
     setselectedArt: (action, state) => {
       const creatorCenterId = action.payload;
-      state.selectedArt = state.creator.find(p => p.id === creatorCenterId);
+      state.selectedArt = state.creator.find(p => p?._id === creatorCenterId);
     },
   },
 });
